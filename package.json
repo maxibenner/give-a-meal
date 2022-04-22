@@ -1,0 +1,15 @@
+{
+  "name": "give-a-meal",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Maximilian Benner",
+  "scripts": {
+    "mb": "yarn workspace mobile-business start",
+    "mu": "yarn workspace mobile-user start"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {}
+}
