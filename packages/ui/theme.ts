@@ -54,7 +54,7 @@ export const theme = {
 export const effects = StyleSheet.create({
   shadow: {
     shadowColor: theme.colors.element_dark_active,
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 7,
   },
 });

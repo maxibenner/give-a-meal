@@ -1,7 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { ToastWithCounter } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useContext, ReactNode, useEffect } from "react";
 import {
   RefreshControl,
   SafeAreaView,
@@ -11,12 +11,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { BottomSheetContext } from "@give-a-meal/ui";
+
 // Mock data
 import { restaurants } from "../mock-data/restaurantsNearby";
 
+// PLACEHOLDER ############
 const wait = (timeout: number) => {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 };
+// ########################
 
 export const Search = ({ navigation }: { navigation: any }) => {
   const [refreshing, setRefreshing] = useState(false);
@@ -26,10 +30,37 @@ export const Search = ({ navigation }: { navigation: any }) => {
     wait(2000).then(() => setRefreshing(false));
   }, []);
 
+  // Info modal context
+  const { content, setContent } = useContext<any>(BottomSheetContext);
+
+  // Dispatch modal content
+  const toggleModal = () => {
+    if (!content) {
+      setContent(
+        <View>
+          <Text
+            style={[
+              textStyles.label_button,
+              { marginBottom: theme.spacing.xs },
+            ]}
+          >
+            Restaurants nearby
+          </Text>
+          <Text style={textStyles.body}>
+            This page shows restaurants with available free meals near you.
+            Restaurants closest to you are at the top.
+          </Text>
+        </View>
+      );
+    } else {
+      setContent(null);
+    }
+  };
+
   return (
     <SafeAreaView>
       <View style={styles.wrapper}>
-        <TouchableOpacity style={styles.titleContainer}>
+        <TouchableOpacity style={styles.titleContainer} onPress={toggleModal}>
           <Text style={styles.title}>Restaurants nearby</Text>
           <FontAwesome
             name="question-circle"

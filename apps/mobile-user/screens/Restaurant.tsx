@@ -1,15 +1,16 @@
-import {
-  View,
-  SafeAreaView,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { FontAwesome } from "@expo/vector-icons";
+import { BottomSheetContext } from "@give-a-meal/ui";
+import { textStyles, theme } from "@give-a-meal/ui/theme";
+import { useContext } from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export const Restaurant = ({
   route,
@@ -20,10 +21,34 @@ export const Restaurant = ({
 }) => {
   const { name, address, donations } = route.params;
 
+  // Info modal context
+  const { content, setContent } = useContext<any>(BottomSheetContext);
+
+  // Dispatch modal content
+  const toggleModal = () => {
+    console.log(content);
+    if (!content) {
+      setContent(
+        <View>
+          <Text
+            style={[textStyles.label_button, { marginBottom: theme.spacing.xs }]}
+          >
+            Restaurants details
+          </Text>
+          <Text style={textStyles.body}>
+            {`These are all the free meals available at ${name}. Tap on any of them to learn more.`}
+          </Text>
+        </View>
+      );
+    } else {
+      setContent(null);
+    }
+  };
+
   return (
     <SafeAreaView>
       <View style={styles.contentTop}>
-        <TouchableOpacity style={styles.titleContainer}>
+        <TouchableOpacity style={styles.titleContainer} onPress={toggleModal}>
           <Text style={styles.title}>Restaurant details</Text>
           <FontAwesome
             name="question-circle"

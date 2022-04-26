@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import { reservedMeals } from "../mock-data/reservedMeals";
 import { FontAwesome } from "@expo/vector-icons";
+import { BottomSheetContext } from "@give-a-meal/ui";
+import { useContext } from "react";
 
 const { width } = Dimensions.get("window");
 
@@ -32,9 +34,37 @@ export const Reserved = () => {
     ]);
   }, [reservedMeals]);
 
+  // Info modal context
+  const { content, setContent } = useContext<any>(BottomSheetContext);
+
+  // Dispatch modal content
+  const toggleModal = () => {
+    console.log(content);
+    if (!content) {
+      setContent(
+        <View>
+          <Text
+            style={[
+              textStyles.label_button,
+              { marginBottom: theme.spacing.xs },
+            ]}
+          >
+            Reserved meals
+          </Text>
+          <Text style={textStyles.body}>
+            Show this QR code at the restaurant displayed on the card to pick up
+            the meal for free.
+          </Text>
+        </View>
+      );
+    } else {
+      setContent(null);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.wrapper}>
-      <TouchableOpacity style={styles.titleContainer}>
+      <TouchableOpacity style={styles.titleContainer} onPress={toggleModal}>
         <Text style={styles.title}>Reserved meals</Text>
         <FontAwesome
           name="question-circle"

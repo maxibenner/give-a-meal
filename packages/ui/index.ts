@@ -7,3 +7,4 @@ export * from "./components/imageButton/ImageButton";
 export * from "./components/item/Item";
 export * from "./components/toastWithCounter/ToastWithCounter";
 export * from "./components/qrVoucher/QRVoucher";
+export * from "./components/bottomSheet/BottomSheet";

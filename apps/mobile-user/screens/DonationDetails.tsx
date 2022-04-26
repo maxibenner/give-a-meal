@@ -1,14 +1,15 @@
-import {
-  View,
-  SafeAreaView,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Button } from "@give-a-meal/ui";
 import { FontAwesome } from "@expo/vector-icons";
+import { Button } from "@give-a-meal/ui";
+import { textStyles, theme } from "@give-a-meal/ui/theme";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { BottomSheetContext } from "@give-a-meal/ui";
+import { useContext } from "react";
 
 export const DonationDetails = ({
   route,
@@ -19,10 +20,36 @@ export const DonationDetails = ({
 }) => {
   const { title, description, donatedBy } = route.params;
 
+  // Info modal context
+  const { content, setContent } = useContext<any>(BottomSheetContext);
+
+  // Dispatch modal content
+  const toggleModal = () => {
+    console.log(content);
+    if (!content) {
+      setContent(
+        <View>
+          <Text
+            style={[textStyles.label_button, { marginBottom: theme.spacing.xs }]}
+          >
+            Donation details
+          </Text>
+          <Text style={textStyles.body}>
+            When reserving this meal, you will receive a QR code. Show this code
+            at the restaurant to pick up the meal for free. Reservations are
+            valid for 24 hours.
+          </Text>
+        </View>
+      );
+    } else {
+      setContent(null);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.wrapper}>
       <View>
-        <TouchableOpacity style={styles.titleContainer}>
+        <TouchableOpacity style={styles.titleContainer} onPress={toggleModal}>
           <Text style={styles.title}>Donation details</Text>
           <FontAwesome
             name="question-circle"
