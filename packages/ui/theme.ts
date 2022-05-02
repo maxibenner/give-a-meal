@@ -3,8 +3,8 @@ import { StyleSheet } from "react-native";
 export const theme = {
   colors: {
     text_primary_dark: "#1D1D1F",
-    text_primary_dark_60: "rgba(0, 0, 0, 0.60)",
-    text_primary_dark_placeholder: "rgba(29, 29, 31, 0.50)",
+    text_primary_dark_60: "rgba(0, 0, 0, 0.40)",
+    text_primary_dark_placeholder: "rgba(29, 29, 31, 0.60)",
     text_primary_light: "#ffffff",
     text_link: "#3C7EF8",
     text_error: "#FF1F1F",

@@ -1,6 +1,7 @@
-import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { BottomSheetContext } from "@give-a-meal/ui";
+import { DonationType } from "@give-a-meal/sdk";
+import { BottomSheetContext, Icon } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
 import { useContext } from "react";
 import {
@@ -11,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { BottomSheetContextType } from "@give-a-meal/ui";
 
 export const Restaurant = ({
   route,
@@ -19,36 +21,30 @@ export const Restaurant = ({
   navigation: any;
   route: any;
 }) => {
-  const { name, address, donations } = route.params;
+  const {
+    name,
+    address,
+    donations,
+    distance,
+  }: { distance: number; name: string; address: string; donations: [] } =
+    route.params;
 
-  // Info modal context
-  const { content, setContent } = useContext<any>(BottomSheetContext);
+  const { setContent } = useContext<BottomSheetContextType>(BottomSheetContext);
 
   // Dispatch modal content
-  const toggleModal = () => {
-    console.log(content);
-    if (!content) {
-      setContent(
-        <View>
-          <Text
-            style={[textStyles.label_button, { marginBottom: theme.spacing.xs }]}
-          >
-            Restaurants details
-          </Text>
-          <Text style={textStyles.body}>
-            {`These are all the free meals available at ${name}. Tap on any of them to learn more.`}
-          </Text>
-        </View>
-      );
-    } else {
-      setContent(null);
-    }
+  const setModal = () => {
+    setContent(
+      <Text style={textStyles.body}>
+        {`These are all the free meals available at ${name}. Tap any of them to learn more.`}
+      </Text>,
+      { title: "Restaurant details" }
+    );
   };
 
   return (
     <SafeAreaView>
       <View style={styles.contentTop}>
-        <TouchableOpacity style={styles.titleContainer} onPress={toggleModal}>
+        <TouchableOpacity style={styles.titleContainer} onPress={setModal}>
           <Text style={styles.title}>Restaurant details</Text>
           <FontAwesome
             name="question-circle"
@@ -58,50 +54,44 @@ export const Restaurant = ({
         </TouchableOpacity>
         <Text style={styles.restaurantName}>{name}</Text>
         <View style={styles.addressContainer}>
-          <MaterialIcons name="location-pin" size={17} color="black" />
-          <Text style={{ marginLeft: theme.spacing.xxs }}>{address}</Text>
+          <Icon name="ruler" />
+          <Text style={{ marginLeft: theme.spacing.xs }}>{address}</Text>
+        </View>
+        <View style={styles.distanceContainer}>
+          <Icon name="pin" />
+          <Text style={{ marginLeft: theme.spacing.xs }}>
+            {distance + " miles away"}
+          </Text>
         </View>
         <Text style={styles.header}>Available Meals</Text>
       </View>
 
       <ScrollView style={styles.scrollView}>
-        {donations.map(
-          (
-            donation: {
-              title: string;
-              description: string;
-              donatedBy: string;
-              id: string;
-            },
-            i: number
-          ) => (
-            <TouchableOpacity
-              key={donation.id}
-              style={[
-                styles.donationContainer,
-                {
-                  marginBottom: donations.length >= i ? theme.spacing.xs : 0,
-                },
-              ]}
-              onPress={() =>
-                navigation.navigate("DonationDetails", {
-                  title: donation.title,
-                  description: donation.description,
-                  donatedBy: donation.donatedBy,
-                })
-              }
-            >
-              <Text style={styles.donationTitle} key={donation.id}>
-                {donation.title}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={24}
-                color={theme.colors.element_dark_inactive}
-              />
-            </TouchableOpacity>
-          )
-        )}
+        {donations.map((donation: DonationType, i: number) => (
+          <TouchableOpacity
+            key={donation.donation_id}
+            style={[
+              styles.donationContainer,
+              {
+                marginBottom: donations.length >= i ? theme.spacing.xs : 0,
+              },
+            ]}
+            onPress={() =>
+              navigation.navigate("DonationDetails", {
+                title: donation.title,
+                description: donation.description,
+                donatedBy: donation.donor_name,
+              })
+            }
+          >
+            <Text style={styles.donationTitle}>{donation.title}</Text>
+            <Ionicons
+              name="chevron-forward"
+              size={24}
+              color={theme.colors.element_dark_inactive}
+            />
+          </TouchableOpacity>
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -126,9 +116,16 @@ const styles = StyleSheet.create({
   },
   restaurantName: {
     ...textStyles.header_3,
-    marginBottom: theme.spacing.xs,
+    marginBottom: theme.spacing.sm,
   },
   addressContainer: {
+    ...textStyles.body_sub,
+    opacity: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: theme.spacing.xxs,
+  },
+  distanceContainer: {
     ...textStyles.body_sub,
     opacity: 1,
     flexDirection: "row",
@@ -141,6 +138,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     padding: theme.spacing.md,
+    paddingTop: theme.spacing.sm,
     flexDirection: "column",
   },
   donationContainer: {

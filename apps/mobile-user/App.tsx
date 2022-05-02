@@ -14,65 +14,96 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetProvider } from "@give-a-meal/ui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import AppLoading from "expo-app-loading";
+import { Asset } from "expo-asset";
+import React from "react";
+import { LocationProvider, LocationContext } from "@give-a-meal/sdk";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  // Cache ressources >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  let cacheRessources = async () => {
+    // List ressources
+    const images = [require("./assets/splash.png")];
+
+    // Cache images
+    const cacheImages = images.map((image) =>
+      Asset.fromModule(image).downloadAsync()
+    );
+
+    // Await images
+    return Promise.all(cacheImages);
+  };
+
+  React.useEffect(() => {
+    cacheRessources().then(() => setIsLoaded(true));
+  }, []);
+
+  // Rendering >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  if (!isLoaded) {
+    return <AppLoading />;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <BottomSheetProvider>
-          <View style={styles.container}>
-            <NavigationContainer>
-              <StatusBar />
-              <Stack.Navigator
-                initialRouteName="Start"
-                screenOptions={{
-                  headerTransparent: true,
-                  headerStyle: {
-                    backgroundColor: "transparent",
-                  },
-                  headerTintColor: theme.colors.text_link,
-                }}
-              >
-                <Stack.Screen
-                  name="Start"
-                  options={{
-                    headerTintColor: "transparent",
+      <LocationProvider>
+        <SafeAreaProvider>
+          <BottomSheetProvider>
+            <View style={styles.container}>
+              <NavigationContainer>
+                <StatusBar />
+                <Stack.Navigator
+                  initialRouteName="Start"
+                  screenOptions={{
+                    headerTransparent: true,
+                    headerStyle: {
+                      backgroundColor: "transparent",
+                    },
+                    headerTintColor: theme.colors.text_link,
                   }}
-                  component={Start}
-                />
-                <Stack.Screen
-                  options={{
-                    headerTintColor: "transparent",
-                  }}
-                  name="MainTabs"
-                  component={MainTabs}
-                />
-                <Stack.Screen
-                  options={{
-                    headerBackTitle: "back",
+                >
+                  <Stack.Screen
+                    name="Start"
+                    options={{
+                      headerTintColor: "transparent",
+                    }}
+                    component={Start}
+                  />
+                  <Stack.Screen
+                    options={{
+                      headerTintColor: "transparent",
+                    }}
+                    name="MainTabs"
+                    component={MainTabs}
+                  />
+                  <Stack.Screen
+                    options={{
+                      headerBackTitle: "back",
 
-                    headerTitleStyle: { color: "transparent" },
-                  }}
-                  name="Restaurant"
-                  component={Restaurant}
-                />
-                <Stack.Screen
-                  options={{
-                    headerBackTitle: "back",
+                      headerTitleStyle: { color: "transparent" },
+                    }}
+                    name="Restaurant"
+                    component={Restaurant}
+                  />
+                  <Stack.Screen
+                    options={{
+                      headerBackTitle: "back",
 
-                    headerTitleStyle: { color: "transparent" },
-                  }}
-                  name="DonationDetails"
-                  component={DonationDetails}
-                />
-              </Stack.Navigator>
-            </NavigationContainer>
-          </View>
-        </BottomSheetProvider>
-      </SafeAreaProvider>
+                      headerTitleStyle: { color: "transparent" },
+                    }}
+                    name="DonationDetails"
+                    component={DonationDetails}
+                  />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </View>
+          </BottomSheetProvider>
+        </SafeAreaProvider>
+      </LocationProvider>
     </GestureHandlerRootView>
   );
 }

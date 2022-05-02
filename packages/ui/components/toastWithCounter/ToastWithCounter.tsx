@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   counterBG: {
-    width: 72,
-    height: 72,
+    width: 70,
+    height: 70,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: theme.colors.text_link,
@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
   title: {
     ...textStyles.label_button,
     maxWidth: "92%",
-    marginBottom: theme.spacing.xxs,
   },
   sub: {
     ...textStyles.body_sub,

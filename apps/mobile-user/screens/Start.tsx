@@ -1,11 +1,11 @@
 import { Button } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
+import React from "react";
 import {
-  ImageBackground,
+  Animated, ImageBackground,
   SafeAreaView,
   StyleSheet,
-  Text,
-  View,
+  Text
 } from "react-native";
 
 const Start = ({ navigation }: { navigation: any }) => {
@@ -16,6 +16,35 @@ const Start = ({ navigation }: { navigation: any }) => {
       routes: [{ name: "MainTabs" }],
     });
   };
+
+  // Mounting animation
+  const animatedOpacityText = React.useRef(new Animated.Value(0)).current;
+  const animatedOpacityButton = React.useRef(new Animated.Value(0)).current;
+  const animatedYText = React.useRef(new Animated.Value(20)).current;
+  const animatedYButton = React.useRef(new Animated.Value(20)).current;
+  React.useEffect(() => {
+    Animated.stagger(150, [
+      Animated.spring(animatedOpacityText, {
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+      Animated.spring(animatedOpacityButton, {
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    Animated.stagger(150, [
+      Animated.spring(animatedYText, {
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+      Animated.spring(animatedYButton, {
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   return (
     <ImageBackground
       resizeMode="cover"
@@ -23,22 +52,39 @@ const Start = ({ navigation }: { navigation: any }) => {
       source={require("../assets/splash.png")}
     >
       <SafeAreaView style={styles.safeAreaView}>
-        <View style={styles.inner}>
-          <View>
+        <Animated.View style={styles.inner}>
+          <Animated.View
+            style={{
+              transform: [{ translateY: animatedYText }],
+              opacity: animatedOpacityText,
+            }}
+          >
             <Text style={styles.title}>Give a Meal</Text>
             <Text
-              style={[textStyles.header_2, { marginBottom: theme.spacing.sm }]}
+              style={[
+                textStyles.header_2,
+                {
+                  marginBottom: theme.spacing.sm,
+                },
+              ]}
             >
               Pick up free meals donated by your community
             </Text>
-          </View>
-          <Button
-            style={{ marginBottom: theme.spacing.sm }}
-            type="primary"
-            label="Find meals"
-            onPress={goToMain}
-          />
-        </View>
+          </Animated.View>
+          <Animated.View
+            style={{
+              transform: [{ translateY: animatedYButton }],
+              opacity: animatedOpacityButton,
+            }}
+          >
+            <Button
+              style={{ marginBottom: theme.spacing.sm }}
+              type="primary"
+              label="Find meals"
+              onPress={goToMain}
+            />
+          </Animated.View>
+        </Animated.View>
       </SafeAreaView>
     </ImageBackground>
   );

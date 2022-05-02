@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, View, Text } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -14,34 +14,30 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { effects, textStyles, theme } from "../../theme";
-
-// Type ---------  Type ---------  Type ---------  Type ---------
-type Content = {
-  content: ReactNode;
-  options?: { title?: string };
-};
+import {
+  SafeAreaView,
+  SafeAreaProvider,
+  SafeAreaInsetsContext,
+  useSafeAreaInsets,
+  initialWindowMetrics,
+} from "react-native-safe-area-context";
 
 // Context ---------  Context ---------  Context ---------  Context ---------
 export const BottomSheetContext = createContext<BottomSheetContextType>(null);
 export type BottomSheetContextType = {
-  content: Content;
-  setContent: (content: ReactNode, options?: { title?: string }) => void;
-};
+  content: ReactNode;
+  setContent: (children: ReactNode) => void;
+} | null;
 
 // Provider ---------  Provider ---------  Provider ---------  Provider ---------
 export function BottomSheetProvider({ children }: { children: ReactNode }) {
-  const [content, setModalContent] = useState<Content | null>();
-
-  const setContent = (content: ReactNode, options?: { title?: string }) => {
-    setModalContent({ content, options });
-  };
+  const [content, setContent] = useState<ReactNode | null>();
 
   return (
     <BottomSheetContext.Provider value={{ content, setContent }}>
       {children}
-      <BottomSheet content={content?.content} options={content?.options} />
+      <BottomSheet content={content} />
     </BottomSheetContext.Provider>
   );
 }
@@ -51,7 +47,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 // Component ---------  Component ---------  Component ---------  Component ---------
 
-export const BottomSheet = ({ content, options }: Content) => {
+export const BottomSheet = ({ content }: { content: ReactNode }) => {
   // Safe area insets
   const insets = useSafeAreaInsets();
 
@@ -67,7 +63,7 @@ export const BottomSheet = ({ content, options }: Content) => {
   const maxTranslateY = useMemo(() => contentHeight, [contentHeight]);
 
   // Delay removal of content to allow for animation
-  const [delayedContent, setDelayedContent] = useState<Content | null>(null);
+  const [delayedContent, setDelayedContent] = useState<ReactNode | null>(null);
 
   // ANIMATION: Trigger -> Gesture
   const gesture = Gesture.Pan()
@@ -95,7 +91,7 @@ export const BottomSheet = ({ content, options }: Content) => {
   useEffect(() => {
     if (content) {
       // Show
-      setDelayedContent({ content: content });
+      setDelayedContent(content);
       translateY.value = withSpring(-contentHeight, { mass: 0.2 });
     } else {
       // Hide
@@ -143,13 +139,11 @@ export const BottomSheet = ({ content, options }: Content) => {
         >
           <View style={styles.headerBar}>
             <View style={styles.handle} />
-            <Text style={styles.headerText}>
-              {options?.title ? options.title : "Information"}
-            </Text>
+            <Text style={styles.headerText}>Information</Text>
           </View>
 
           <View style={[styles.content, { marginBottom: insets.bottom }]}>
-            {delayedContent && delayedContent.content}
+            {delayedContent}
           </View>
         </Animated.View>
       </GestureDetector>
@@ -168,7 +162,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     position: "absolute",
-    // overflow: "hidden",
+    overflow: "hidden",
     top: SCREEN_HEIGHT,
     backgroundColor: theme.colors.bg_white,
     borderTopRightRadius: theme.borderRadius.regular,
@@ -184,13 +178,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.0)",
   },
   handle: {
-    width: 100,
+    width: 35,
     height: 4,
     backgroundColor: theme.colors.element_dark_inactive,
     marginBottom: 5,
     borderRadius: 2,
     position: "absolute",
-    top: -12,
+    top: 6,
   },
   headerText: {
     ...textStyles.label_button,

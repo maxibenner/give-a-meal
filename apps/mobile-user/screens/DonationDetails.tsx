@@ -1,6 +1,11 @@
 import { FontAwesome } from "@expo/vector-icons";
-import { Button } from "@give-a-meal/ui";
+import {
+  BottomSheetContext,
+  BottomSheetContextType,
+  Button,
+} from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
+import { useContext } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,8 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { BottomSheetContext } from "@give-a-meal/ui";
-import { useContext } from "react";
 
 export const DonationDetails = ({
   route,
@@ -21,35 +24,52 @@ export const DonationDetails = ({
   const { title, description, donatedBy } = route.params;
 
   // Info modal context
-  const { content, setContent } = useContext<any>(BottomSheetContext);
+  const { setContent } = useContext<BottomSheetContextType>(BottomSheetContext);
 
   // Dispatch modal content
-  const toggleModal = () => {
-    console.log(content);
-    if (!content) {
-      setContent(
-        <View>
-          <Text
-            style={[textStyles.label_button, { marginBottom: theme.spacing.xs }]}
-          >
-            Donation details
-          </Text>
-          <Text style={textStyles.body}>
-            When reserving this meal, you will receive a QR code. Show this code
-            at the restaurant to pick up the meal for free. Reservations are
-            valid for 24 hours.
-          </Text>
+  const setModal = () => {
+    setContent(
+      <Text style={textStyles.body}>
+        When reserving this meal, you will receive a QR code. Show this code at
+        the restaurant to pick up the free meal. Reservations are valid for 24
+        hours.
+      </Text>,
+      { title: "Donation details" }
+    );
+  };
+
+  // Reserve donation
+  const handleReservation = () => {
+    setContent(
+      <View>
+        <Text style={[textStyles.body, { marginBottom: theme.spacing.md }]}>
+          This reservation will be valid for 24 hours.
+        </Text>
+        <View style={styles.buttonContainer}>
+          <Button
+            style={{
+              flex: 1,
+              marginRight: 4,
+              backgroundColor: theme.colors.text_link,
+            }}
+            label="Reserve"
+          />
+          <Button
+            onPress={() => setContent(null)}
+            style={{ flex: 1, marginLeft: 4 }}
+            type="secondary"
+            label="Cancel"
+          />
         </View>
-      );
-    } else {
-      setContent(null);
-    }
+      </View>,
+      { title: "Reserve this meal?" }
+    );
   };
 
   return (
     <SafeAreaView style={styles.wrapper}>
       <View>
-        <TouchableOpacity style={styles.titleContainer} onPress={toggleModal}>
+        <TouchableOpacity style={styles.titleContainer} onPress={setModal}>
           <Text style={styles.title}>Donation details</Text>
           <FontAwesome
             name="question-circle"
@@ -66,6 +86,7 @@ export const DonationDetails = ({
       <Button
         style={{ backgroundColor: theme.colors.text_link }}
         label="Reserve this meal"
+        onPress={handleReservation}
       />
     </SafeAreaView>
   );
@@ -103,5 +124,11 @@ const styles = StyleSheet.create({
     ...textStyles.body,
     color: theme.colors.text_primary_dark_60,
     marginBottom: theme.spacing.md,
+  },
+  // Modal
+  buttonContainer: {
+    width: "100%",
+    justifyContent: "space-between",
+    flexDirection: "row",
   },
 });

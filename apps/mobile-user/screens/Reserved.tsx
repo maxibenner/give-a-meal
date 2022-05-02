@@ -1,4 +1,4 @@
-import { QRVoucher } from "@give-a-meal/ui";
+import { QRVoucher, BottomSheetContextType } from "@give-a-meal/ui";
 import { useEffect, useState } from "react";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
 import {
@@ -35,36 +35,22 @@ export const Reserved = () => {
   }, [reservedMeals]);
 
   // Info modal context
-  const { content, setContent } = useContext<any>(BottomSheetContext);
+  const { setContent } = useContext<BottomSheetContextType>(BottomSheetContext);
 
   // Dispatch modal content
-  const toggleModal = () => {
-    console.log(content);
-    if (!content) {
-      setContent(
-        <View>
-          <Text
-            style={[
-              textStyles.label_button,
-              { marginBottom: theme.spacing.xs },
-            ]}
-          >
-            Reserved meals
-          </Text>
-          <Text style={textStyles.body}>
-            Show this QR code at the restaurant displayed on the card to pick up
-            the meal for free.
-          </Text>
-        </View>
-      );
-    } else {
-      setContent(null);
-    }
+  const setModal = () => {
+    setContent(
+      <Text style={textStyles.body}>
+        Show this QR code at the restaurant displayed on the card to pick up the
+        meal for free.
+      </Text>,
+      { title: "Reserved meals" }
+    );
   };
 
   return (
     <SafeAreaView style={styles.wrapper}>
-      <TouchableOpacity style={styles.titleContainer} onPress={toggleModal}>
+      <TouchableOpacity style={styles.titleContainer} onPress={setModal}>
         <Text style={styles.title}>Reserved meals</Text>
         <FontAwesome
           name="question-circle"
@@ -83,7 +69,6 @@ export const Reserved = () => {
         contentContainerStyle={{ alignItems: "center" }}
         decelerationRate={Platform.OS === "ios" ? 0 : 0.98}
         keyExtractor={(item) => item.id}
-        // style={{ backgroundColor: "blue" }}
         renderItem={({ item }) => {
           if (item.id.includes("spacer")) {
             return <View key={item.id} style={{ width: EMPTY_ITEM_SIZE }} />;

@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, Dimensions, ViewStyle } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
+import { Dimensions, StyleSheet, Text, View, ViewStyle } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { textStyles, theme } from "../../theme";
-import { MaterialIcons } from "@expo/vector-icons";
 import { Button } from "../button/Buttons";
-import { useMemo, useState } from "react";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
