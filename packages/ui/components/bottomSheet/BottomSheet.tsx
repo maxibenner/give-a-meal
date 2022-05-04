@@ -81,8 +81,8 @@ export const BottomSheet = ({ content, options }: Content) => {
     })
     .onEnd(() => {
       if (translateY.value * 2 > -contentHeight) {
-        // Animate bottom sheet to hidden state
-        translateY.value = withSpring(0, { mass: 0.2 }, () =>
+        // Animate bottom sheet to hidden state (20 instead of 0 to hide handle)
+        translateY.value = withSpring(20, { mass: 0.2 }, () =>
           runOnJS(setContent)(null)
         );
       } else {
@@ -98,8 +98,8 @@ export const BottomSheet = ({ content, options }: Content) => {
       setDelayedContent({ content: content });
       translateY.value = withSpring(-contentHeight, { mass: 0.2 });
     } else {
-      // Hide
-      translateY.value = withSpring(0, { mass: 0.2 }, () =>
+      // Hide (20 instead of 0 to hide handle)
+      translateY.value = withSpring(20, { mass: 0.2 }, () =>
         runOnJS(setDelayedContent)(null)
       );
     }
