@@ -4,19 +4,21 @@ import { Dimensions, StyleSheet, Text, View, ViewStyle } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { textStyles, theme } from "../../theme";
 import { Button } from "../button/Buttons";
+import { openMapsWithAddress } from "@give-a-meal/sdk";
 
-const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 export const QRVoucher = ({
   title,
   businessName,
   address,
+  fullAddress,
   style,
 }: {
   title: string;
   businessName: string;
   address: string;
+  fullAddress: string;
   style?: ViewStyle;
 }) => {
   const [qrContainerXY, setQRContainerXY] = useState({ width: 0, height: 0 });
@@ -59,6 +61,7 @@ export const QRVoucher = ({
           </Text>
         </View>
         <Button
+          onPress={() => openMapsWithAddress(fullAddress)}
           size="small"
           style={{
             backgroundColor: "white",
@@ -113,5 +116,6 @@ const styles = StyleSheet.create({
     ...textStyles.body,
     marginLeft: theme.spacing.xxs,
     color: theme.colors.text_primary_light,
+    maxWidth: "80%",
   },
 });

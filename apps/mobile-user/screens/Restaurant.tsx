@@ -81,6 +81,7 @@ export const Restaurant = ({
                 title: donation.title,
                 description: donation.description,
                 donatedBy: donation.donor_name,
+                donationId: donation.donation_id,
               })
             }
           >

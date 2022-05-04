@@ -3,6 +3,11 @@ import {
   SupabaseClient,
   PostgrestError,
 } from "@supabase/supabase-js";
+import {
+  getFunctions,
+  connectFunctionsEmulator,
+  httpsCallable,
+} from "firebase/functions";
 
 import { supabaseConfig } from "../constants/env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -35,14 +40,33 @@ export const listNearbyDonations = async ({
     longitude: lon,
     radius: radius,
   });
-  if (error) {
-    console.error(error);
-    return { error: error, data: null };
-  } else {
-    // Sort into businesses
-    const businesses = groupDonationsByBusiness(data);
-    return { error: null, data: businesses };
+
+  // Check response
+  if (error) return { error: error, data: null };
+  else {
+    // Return sorted businesses
+    return { error: null, data: groupDonationsByBusiness(data) };
   }
+};
+
+/**
+ * List all donations claimed by user with claimId
+ * @param claimId Id to identify claim (needs to be saved locally by user)
+ * @param donationId Donation id
+ */
+export const claimDonation = () => {};
+
+/**
+ * List all donations claimed by user with claimId
+ * @param claimId Id that has been used to claim the donations
+ */
+export const listClaimedDonations = async (claimId: string) => {
+  const res = await supabase
+    .from("donations")
+    .select("*, item_id (*, business_id(*))")
+    .eq("claimed_by", claimId);
+
+  return { data: res.data, error: res.error };
 };
 
 const groupDonationsByBusiness = (data: QueryResponse[]) => {

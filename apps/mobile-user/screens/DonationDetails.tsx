@@ -21,7 +21,7 @@ export const DonationDetails = ({
   navigation: any;
   route: any;
 }) => {
-  const { title, description, donatedBy } = route.params;
+  const { title, description, donatedBy, donationId } = route.params;
 
   // Info modal context
   const { setContent } = useContext<BottomSheetContextType>(BottomSheetContext);

@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { reservedMeals } from "../mock-data/reservedMeals";
+import { listClaimedDonations } from "@give-a-meal/sdk";
 import { FontAwesome } from "@expo/vector-icons";
 import { BottomSheetContext } from "@give-a-meal/ui";
 import { useContext } from "react";
@@ -26,12 +27,12 @@ export const Reserved = () => {
   const [meals, setMeals] = useState<any>();
 
   useEffect(() => {
-    // Add spacers
-    setMeals([
-      { id: "spacer-114124" },
-      ...reservedMeals,
-      { id: "spacer-124124" },
-    ]);
+    listClaimedDonations("001").then(({ data, error }) => {
+      if (data) {
+        // Set data and add spacers for correct display of scrollview
+        setMeals([{ id: "001" }, ...data, { id: "002" }]);
+      }
+    });
   }, [reservedMeals]);
 
   // Info modal context
@@ -60,7 +61,7 @@ export const Reserved = () => {
       </TouchableOpacity>
 
       <FlatList
-        data={meals as any}
+        data={meals}
         showsHorizontalScrollIndicator={false}
         horizontal
         snapToInterval={ITEM_SIZE}
@@ -70,16 +71,17 @@ export const Reserved = () => {
         decelerationRate={Platform.OS === "ios" ? 0 : 0.98}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
-          if (item.id.includes("spacer")) {
+          if (typeof item.id === "string") {
             return <View key={item.id} style={{ width: EMPTY_ITEM_SIZE }} />;
           } else {
             return (
               <View style={styles.voucherContainer} key={item.id}>
                 <QRVoucher
                   style={styles.voucher}
-                  title={item.title}
-                  address={item.address}
-                  businessName={item.businessName}
+                  title={item.item_id.title}
+                  address={`${item.item_id.business_id.address}, ${item.item_id.business_id.city}`}
+                  fullAddress={`${item.item_id.business_id.address}, ${item.item_id.business_id.city} ${item.item_id.business_id.country}`}
+                  businessName={item.item_id.business_id.business_name}
                 />
               </View>
             );
