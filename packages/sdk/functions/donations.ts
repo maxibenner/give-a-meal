@@ -1,23 +1,9 @@
-import {
-  createClient,
-  SupabaseClient,
-  PostgrestError,
-} from "@supabase/supabase-js";
-import {
-  getFunctions,
-  connectFunctionsEmulator,
-  httpsCallable,
-} from "firebase/functions";
+import { PostgrestError } from "@supabase/supabase-js";
+import { supabase } from "../constants/supabase";
+import { firebase } from "../constants/firebase";
+import { httpsCallable, getFunctions } from "firebase/functions";
 
-import { supabaseConfig } from "../constants/env";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Initialize supabase
-var supabase: SupabaseClient;
-supabase = createClient(supabaseConfig.apiUrl, supabaseConfig.anonKey, {
-  localStorage: AsyncStorage as any,
-  detectSessionInUrl: false,
-});
+const functions = getFunctions(firebase);
 
 /**
  * List all businesses with donations nearby
@@ -25,7 +11,7 @@ supabase = createClient(supabaseConfig.apiUrl, supabaseConfig.anonKey, {
  * @param lon Longitued of user location
  * @param radius Search radius in miles
  */
-export const listNearbyDonations = async ({
+export const listNearbyBusinessesWithDonations = async ({
   lat,
   lon,
   radius,
@@ -51,10 +37,46 @@ export const listNearbyDonations = async ({
 
 /**
  * List all donations claimed by user with claimId
- * @param claimId Id to identify claim (needs to be saved locally by user)
  * @param donationId Donation id
+ * @param claimId Id to identify claim (needs to be saved locally by user)
  */
-export const claimDonation = () => {};
+export const claimDonation = async ({
+  donationId,
+  claimId,
+}: {
+  donationId: number;
+  claimId: string;
+}) => {
+  const claimDonation_cf = httpsCallable<{
+    donationId: number;
+    storageId: string;
+  }>(functions, "claimDonation");
+
+  const res = await claimDonation_cf({
+    donationId: donationId,
+    storageId: claimId,
+  });
+  if (res.data === "Success") {
+    return { status: 200, error: null };
+  }
+  if (res.data === "Maximum number of claimed donations reached") {
+    return {
+      status: 400,
+      error: {
+        code: "Too many reservations",
+        message: `You have reached the maximum number of allowed reservations.`,
+      },
+    };
+  } else {
+    return {
+      status: 400,
+      error: {
+        code: "Uncaught exception",
+        message: `There was an undefined problem when trying to claim the donation with the id ${donationId} and the storage id ${claimId}`,
+      },
+    };
+  }
+};
 
 /**
  * List all donations claimed by user with claimId
@@ -64,7 +86,8 @@ export const listClaimedDonations = async (claimId: string) => {
   const res = await supabase
     .from("donations")
     .select("*, item_id (*, business_id(*))")
-    .eq("claimed_by", claimId);
+    .eq("claimed_by", claimId)
+    .eq("active", true);
 
   return { data: res.data, error: res.error };
 };

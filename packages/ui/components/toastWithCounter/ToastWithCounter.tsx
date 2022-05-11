@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
   },
   sub: {
     ...textStyles.body_sub,
+    opacity: 1,
     maxWidth: "92%",
   },
 });

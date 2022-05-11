@@ -1,12 +1,5 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { Dimensions, Modal, StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -17,57 +10,52 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { effects, textStyles, theme } from "../../theme";
 
-// Type ---------  Type ---------  Type ---------  Type ---------
-type Content = {
-  content: ReactNode;
-  options?: { title?: string };
-};
+export const BottomSheet = ({
+  active,
+  onCloseRequest,
+  block,
+  children,
+  title,
+}: {
+  active: boolean;
+  onCloseRequest: () => void;
+  block?: boolean;
+  children: ReactNode;
+  title?: string;
+}) => {
+  // Layout
+  const insets = useSafeAreaInsets();
+  const [contentHeight, setContentHeight] = useState(0);
+  const [waitForAnimation, setWaitForAnimation] = useState(false);
 
-// Context ---------  Context ---------  Context ---------  Context ---------
-export const BottomSheetContext = createContext<BottomSheetContextType>(null);
-export type BottomSheetContextType = {
-  content: Content;
-  setContent: (content: ReactNode, options?: { title?: string }) => void;
-};
+  // Show / hide sheet
+  useEffect(() => {
+    if (active) {
+      // Activate to prevent closing of modal before hide animations are finished playing
+      setWaitForAnimation(true);
 
-// Provider ---------  Provider ---------  Provider ---------  Provider ---------
-export function BottomSheetProvider({ children }: { children: ReactNode }) {
-  const [content, setModalContent] = useState<Content | null>();
+      // Animate in
+      translateY.value = withSpring(-contentHeight, { mass: 0.2 });
+    } else handleCloseWithDelay();
+  }, [active, contentHeight]);
 
-  const setContent = (content: ReactNode, options?: { title?: string }) => {
-    setModalContent({ content, options });
+  // Use this function to trigger close animation imperatively
+  const handleClose = () => {
+    !block && onCloseRequest();
   };
 
-  return (
-    <BottomSheetContext.Provider value={{ content, setContent }}>
-      {children}
-      <BottomSheet content={content?.content} options={content?.options} />
-    </BottomSheetContext.Provider>
-  );
-}
-
-// Global Variables ---------  Global Variables ---------  Global Variables ---------
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-
-// Component ---------  Component ---------  Component ---------  Component ---------
-
-export const BottomSheet = ({ content, options }: Content) => {
-  // Safe area insets
-  const insets = useSafeAreaInsets();
-
-  // Context
-  const { setContent } = useContext(BottomSheetContext);
+  // Use this function for declarative closing
+  const handleCloseWithDelay = () => {
+    // Animate
+    translateY.value = withSpring(20, { mass: 0.2 }, () => {
+      // Allow modal to disappear
+      runOnJS(setWaitForAnimation)(false);
+    });
+  };
 
   // Animation variables
   const translateY = useSharedValue(0);
   const context = useSharedValue({ y: 0 }); // Keep track of previous gesture
-
-  // Layout variables
-  const [contentHeight, setContentHeight] = useState(0);
-  const maxTranslateY = useMemo(() => contentHeight, [contentHeight]);
-
-  // Delay removal of content to allow for animation
-  const [delayedContent, setDelayedContent] = useState<Content | null>(null);
 
   // ANIMATION: Trigger -> Gesture
   const gesture = Gesture.Pan()
@@ -77,45 +65,37 @@ export const BottomSheet = ({ content, options }: Content) => {
     .onUpdate((event) => {
       // Bottom sheet
       translateY.value = event.translationY + context.value.y;
-      translateY.value = Math.max(translateY.value, -maxTranslateY);
+      translateY.value = Math.max(translateY.value, -contentHeight);
     })
     .onEnd(() => {
       if (translateY.value * 2 > -contentHeight) {
-        // Animate bottom sheet to hidden state (20 instead of 0 to hide handle)
-        translateY.value = withSpring(20, { mass: 0.2 }, () =>
-          runOnJS(setContent)(null)
-        );
+        // Prevent closing when blocking is active
+        if (block) {
+          // Animate back to full open state
+          translateY.value = withSpring(-contentHeight, { mass: 0.2 });
+        } else {
+          // Animate bottom sheet to hidden state (20 instead of 0 to hide handle)
+          translateY.value = withSpring(20, { mass: 0.2 }, () => {
+            runOnJS(onCloseRequest)();
+          });
+        }
       } else {
         // Animate back to full open state
-        translateY.value = withSpring(-maxTranslateY, { mass: 0.2 });
+        translateY.value = withSpring(-contentHeight, { mass: 0.2 });
       }
     });
 
-  // ANIMATION: Trigger -> Content change
-  useEffect(() => {
-    if (content) {
-      // Show
-      setDelayedContent({ content: content });
-      translateY.value = withSpring(-contentHeight, { mass: 0.2 });
-    } else {
-      // Hide (20 instead of 0 to hide handle)
-      translateY.value = withSpring(20, { mass: 0.2 }, () =>
-        runOnJS(setDelayedContent)(null)
-      );
-    }
-  }, [content, contentHeight]);
-
-  // Create animation property
+  // TRANSFORM animatio property
   const reanimatedSheetStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.value }],
     };
   });
 
-  // Create animation property
+  // OPACITY animation property
   const reanimatedBgStyle = useAnimatedStyle(() => {
-    const safeTranslateY = translateY.value + 1;
-    const safeContentHeight = contentHeight + 1;
+    const safeTranslateY = translateY.value + 1; // Add + 1 to prevent dividing by 0
+    const safeContentHeight = contentHeight + 1; // Add + 1 to prevent dividing by 0
     const percentageMoved = -safeTranslateY / safeContentHeight;
 
     // Divide to go less than 100%
@@ -128,34 +108,40 @@ export const BottomSheet = ({ content, options }: Content) => {
 
   // Render component
   return (
-    <>
+    <Modal
+      visible={active || waitForAnimation}
+      transparent
+      onRequestClose={handleClose}
+    >
       <Animated.View
-        pointerEvents={delayedContent === null ? "none" : "auto"}
-        onTouchStart={() => setContent(null)}
+        // Only allows close on background press when fully visible
+        onTouchStart={handleClose}
         style={[styles.background, reanimatedBgStyle]}
       />
       <GestureDetector gesture={gesture}>
         <Animated.View
           style={[styles.container, reanimatedSheetStyle]}
-          onLayout={(event) => {
-            setContentHeight(event.nativeEvent.layout.height);
-          }}
+          onLayout={(event) =>
+            setContentHeight(event.nativeEvent.layout.height)
+          }
         >
           <View style={styles.headerBar}>
             <View style={styles.handle} />
             <Text style={styles.headerText}>
-              {options?.title ? options.title : "Information"}
+              {title ? title : "Information"}
             </Text>
           </View>
 
           <View style={[styles.content, { marginBottom: insets.bottom }]}>
-            {delayedContent && delayedContent.content}
+            {children}
           </View>
         </Animated.View>
       </GestureDetector>
-    </>
+    </Modal>
   );
 };
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   background: {

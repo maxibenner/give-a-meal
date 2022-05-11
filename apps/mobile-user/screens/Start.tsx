@@ -2,10 +2,11 @@ import { Button } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
 import React from "react";
 import {
-  Animated, ImageBackground,
+  Animated,
+  ImageBackground,
   SafeAreaView,
   StyleSheet,
-  Text
+  Text,
 } from "react-native";
 
 const Start = ({ navigation }: { navigation: any }) => {

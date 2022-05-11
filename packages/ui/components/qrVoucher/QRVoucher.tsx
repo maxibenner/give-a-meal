@@ -1,30 +1,53 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Dimensions, StyleSheet, Text, View, ViewStyle } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+  TouchableOpacity,
+} from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { textStyles, theme } from "../../theme";
 import { Button } from "../button/Buttons";
 import { openMapsWithAddress } from "@give-a-meal/sdk";
+import { Ionicons } from "@expo/vector-icons";
 
 const windowHeight = Dimensions.get("window").height;
 
 export const QRVoucher = ({
   title,
+  donationId,
   businessName,
   address,
   fullAddress,
+  onCancel,
   style,
 }: {
   title: string;
+  donationId: number;
   businessName: string;
   address: string;
   fullAddress: string;
+  onCancel?: () => void;
   style?: ViewStyle;
 }) => {
   const [qrContainerXY, setQRContainerXY] = useState({ width: 0, height: 0 });
 
+  const payload = JSON.stringify({
+    item_title: title,
+    donation_id: donationId,
+  });
+
   return (
     <View style={[styles.container, style]}>
+      {/* <TouchableOpacity
+        style={styles.cancelButton}
+        onPress={onCancel && onCancel}
+      >
+        <Ionicons name="close" size={22} color="black" />
+      </TouchableOpacity> */}
       <View
         style={styles.QRContainer}
         onLayout={(event) => {
@@ -32,9 +55,7 @@ export const QRVoucher = ({
           setQRContainerXY({ width, height });
         }}
       >
-        {qrContainerXY && (
-          <QRCode size={windowHeight / 5} value="https://give-a-meal.org" />
-        )}
+        {qrContainerXY && <QRCode size={windowHeight / 5} value={payload} />}
       </View>
       <View style={styles.contentContainer}>
         <Text numberOfLines={1} style={styles.title}>
@@ -117,5 +138,17 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing.xxs,
     color: theme.colors.text_primary_light,
     maxWidth: "80%",
+  },
+  cancelButton: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    top: theme.spacing.md,
+    right: theme.spacing.md,
+    width: 28,
+    height: 28,
+    borderRadius: 20,
+    opacity: 0.15,
+    backgroundColor: theme.colors.text_primary_light,
   },
 });

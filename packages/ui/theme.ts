@@ -19,7 +19,7 @@ export const theme = {
     effect_highlight: "#3C7EF8",
 
     bg_white: "#ffffff",
-    bg_main: "#F9F9F9",
+    bg_main: "#F6F6F6",
     bg_blue: "#6A9DFC",
     bg_error: "rgba(255, 31, 31, 0.08)",
     bg_brand: "#C7FFBE",
@@ -54,8 +54,8 @@ export const theme = {
 export const effects = StyleSheet.create({
   shadow: {
     shadowColor: theme.colors.element_dark_active,
-    shadowOpacity: 0.05,
-    shadowRadius: 7,
+    shadowOpacity: 0.02,
+    shadowRadius: 5,
   },
 });
 

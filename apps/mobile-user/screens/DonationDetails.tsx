@@ -1,18 +1,8 @@
-import { FontAwesome } from "@expo/vector-icons";
-import {
-  BottomSheetContext,
-  BottomSheetContextType,
-  Button,
-} from "@give-a-meal/ui";
+import { Button, BottomSheet } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { useContext } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useState } from "react";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { claimDonation } from "@give-a-meal/sdk";
 
 export const DonationDetails = ({
   route,
@@ -23,72 +13,92 @@ export const DonationDetails = ({
 }) => {
   const { title, description, donatedBy, donationId } = route.params;
 
-  // Info modal context
-  const { setContent } = useContext<BottomSheetContextType>(BottomSheetContext);
+  // Modals
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isReserving, setIsReserving] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  // Dispatch modal content
-  const setModal = () => {
-    setContent(
-      <Text style={textStyles.body}>
-        When reserving this meal, you will receive a QR code. Show this code at
-        the restaurant to pick up the free meal. Reservations are valid for 24
-        hours.
-      </Text>,
-      { title: "Donation details" }
-    );
-  };
-
-  // Reserve donation
-  const handleReservation = () => {
-    setContent(
-      <View>
-        <Text style={[textStyles.body, { marginBottom: theme.spacing.md }]}>
-          This reservation will be valid for 24 hours.
-        </Text>
-        <View style={styles.buttonContainer}>
-          <Button
-            style={{
-              flex: 1,
-              marginRight: 4,
-              backgroundColor: theme.colors.text_link,
-            }}
-            label="Reserve"
-          />
-          <Button
-            onPress={() => setContent(null)}
-            style={{ flex: 1, marginLeft: 4 }}
-            type="secondary"
-            label="Cancel"
-          />
-        </View>
-      </View>,
-      { title: "Reserve this meal?" }
-    );
+  const confirmReservation = async () => {
+    setIsReserving(true);
+    const res = await claimDonation({ donationId: donationId, claimId: "001" });
+    console.log(res);
+    setIsReserving(false);
+    return;
+    if (res.status === 200) {
+      setIsReserving(false);
+      navigation.navigate("Reserved");
+    } else {
+      setIsReserving(false);
+      setIsError(true);
+    }
   };
 
   return (
-    <SafeAreaView style={styles.wrapper}>
-      <View>
-        <TouchableOpacity style={styles.titleContainer} onPress={setModal}>
-          <Text style={styles.title}>Donation details</Text>
-          <FontAwesome
-            name="question-circle"
-            size={theme.fontSizes.reg}
-            color={theme.colors.text_primary_dark_60}
+    <>
+      {/* Page */}
+      <SafeAreaView style={styles.wrapper}>
+        <View style={styles.inner}>
+          <View>
+            <Text style={styles.donationTitle}>{title}</Text>
+            <Text style={styles.subCategory}>Description</Text>
+            <Text style={styles.body}>{description}</Text>
+            <Text style={styles.subCategory}>Donated by</Text>
+            <Text style={styles.body}>{donatedBy}</Text>
+          </View>
+          <Button
+            style={{ backgroundColor: theme.colors.text_link }}
+            label="Reserve this meal"
+            onPress={() => setIsConfirming(true)}
           />
-        </TouchableOpacity>
-        <Text style={styles.donationTitle}>{title}</Text>
-        <Text style={styles.subCategory}>Description</Text>
-        <Text style={styles.body}>{description}</Text>
-        <Text style={styles.subCategory}>Donated by</Text>
-        <Text style={styles.body}>{donatedBy}</Text>
-      </View>
-      <Button
-        style={{ backgroundColor: theme.colors.text_link }}
-        label="Reserve this meal"
-        onPress={handleReservation}
-      />
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+
+      {/* Confirmation modal */}
+      <BottomSheet
+        title="Are you sure?"
+        active={isConfirming}
+        block={isReserving}
+        onCloseRequest={() => setIsConfirming(false)}
+      >
+        <View>
+          <Text style={[textStyles.body, { marginBottom: theme.spacing.md }]}>
+            This reservation will last for 1 hour. You can reserve a maximum of
+            3 meals at the same time.
+          </Text>
+          <View style={styles.buttonContainer}>
+            <Button
+              onPress={() => !isReserving && confirmReservation()}
+              loading={isReserving}
+              style={{
+                flex: 1,
+                marginRight: 4,
+                backgroundColor: theme.colors.text_link,
+              }}
+              label="Reserve"
+            />
+            <Button
+              onPress={() => !isReserving && setIsConfirming(false)}
+              style={{ flex: 1, marginLeft: 4 }}
+              type="secondary"
+              label="Cancel"
+            />
+          </View>
+        </View>
+      </BottomSheet>
+
+      {/* Error modal */}
+      <BottomSheet
+        title="Error"
+        active={isError}
+        onCloseRequest={() => setIsError(false)}
+      >
+        <View>
+          <Text style={textStyles.body}>
+            We couldn't reserve this meal. Please try again later.
+          </Text>
+        </View>
+      </BottomSheet>
+    </>
   );
 };
 
@@ -96,6 +106,10 @@ export default DonationDetails;
 
 const styles = StyleSheet.create({
   wrapper: {
+    flex: 1,
+    backgroundColor: theme.colors.bg_main,
+  },
+  inner: {
     flex: 1,
     marginHorizontal: theme.spacing.md,
     marginBottom: theme.spacing.md,
@@ -114,6 +128,7 @@ const styles = StyleSheet.create({
   },
   donationTitle: {
     ...textStyles.header_3,
+    marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
   },
   subCategory: {

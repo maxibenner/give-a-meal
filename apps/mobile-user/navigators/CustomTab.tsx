@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@give-a-meal/ui";
-import { theme } from "@give-a-meal/ui/theme";
+import { effects, theme } from "@give-a-meal/ui/theme";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -19,10 +19,7 @@ function MyTabBar({ state, descriptors, navigation }: MyTabBar) {
   const insets = useSafeAreaInsets();
   return (
     <View
-      style={[
-        styles.bar,
-        { paddingBottom: theme.spacing.md + insets.bottom },
-      ]}
+      style={[styles.bar, { paddingBottom: theme.spacing.md + insets.bottom }]}
     >
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
@@ -82,6 +79,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     paddingHorizontal: theme.spacing.md - flexGap / 2,
     backgroundColor: theme.colors.bg_white,
+    ...effects.shadow
   },
 });
 

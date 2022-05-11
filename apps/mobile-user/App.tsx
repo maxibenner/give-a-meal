@@ -1,23 +1,24 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LocationProvider } from "@give-a-meal/sdk";
 import { theme } from "@give-a-meal/ui/theme";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
-import Search from "./screens/Search";
-import Start from "./screens/Start";
-import Restaurant from "./screens/Restaurant";
-import DonationDetails from "./screens/DonationDetails";
-import Reserved from "./screens/Reserved";
-import MyTabBar from "./navigators/CustomTab";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { BottomSheetProvider } from "@give-a-meal/ui";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AppLoading from "expo-app-loading";
 import { Asset } from "expo-asset";
+import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { LocationProvider, LocationContext } from "@give-a-meal/sdk";
+import { StyleSheet, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { DonationProvider } from "./context/donationContext";
+import MyTabBar from "./navigators/CustomTab";
+import DonationDetails from "./screens/DonationDetails";
+import Reserved from "./screens/Reserved";
+import Restaurant from "./screens/Restaurant";
+import Search from "./screens/Search";
+import Start from "./screens/Start";
+import { RoundedScreenCorners } from "@give-a-meal/ui";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -28,7 +29,10 @@ export default function App() {
 
   let cacheRessources = async () => {
     // List ressources
-    const images = [require("./assets/splash.png")];
+    const images = [
+      require("./assets/splash.png"),
+      require("./assets/donation_placeholder.png"),
+    ];
 
     // Cache images
     const cacheImages = images.map((image) =>
@@ -51,58 +55,60 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LocationProvider>
-        <SafeAreaProvider>
-          <BottomSheetProvider>
-            <View style={styles.container}>
-              <NavigationContainer>
-                <StatusBar />
-                <Stack.Navigator
-                  initialRouteName="Start"
-                  screenOptions={{
-                    headerTransparent: true,
-                    headerStyle: {
-                      backgroundColor: "transparent",
-                    },
-                    headerTintColor: theme.colors.text_link,
-                  }}
-                >
-                  <Stack.Screen
-                    name="Start"
-                    options={{
-                      headerTintColor: "transparent",
+        <DonationProvider>
+          <RoundedScreenCorners>
+            <SafeAreaProvider>
+              <View style={styles.container}>
+                <NavigationContainer>
+                  <StatusBar style="dark" />
+                  <Stack.Navigator
+                    initialRouteName="Start"
+                    screenOptions={{
+                      headerTransparent: true,
+                      headerStyle: {
+                        backgroundColor: "transparent",
+                      },
+                      headerTintColor: theme.colors.text_link,
                     }}
-                    component={Start}
-                  />
-                  <Stack.Screen
-                    options={{
-                      headerTintColor: "transparent",
-                    }}
-                    name="MainTabs"
-                    component={MainTabs}
-                  />
-                  <Stack.Screen
-                    options={{
-                      headerBackTitle: "back",
+                  >
+                    <Stack.Screen
+                      name="Start"
+                      options={{
+                        headerTintColor: "transparent",
+                      }}
+                      component={Start}
+                    />
+                    <Stack.Screen
+                      options={{
+                        headerTintColor: "transparent",
+                      }}
+                      name="MainTabs"
+                      component={MainTabs}
+                    />
+                    <Stack.Screen
+                      options={{
+                        headerBackTitle: "back",
 
-                      headerTitleStyle: { color: "transparent" },
-                    }}
-                    name="Restaurant"
-                    component={Restaurant}
-                  />
-                  <Stack.Screen
-                    options={{
-                      headerBackTitle: "back",
+                        headerTitleStyle: { color: "transparent" },
+                      }}
+                      name="Restaurant"
+                      component={Restaurant}
+                    />
+                    <Stack.Screen
+                      options={{
+                        headerBackTitle: "back",
 
-                      headerTitleStyle: { color: "transparent" },
-                    }}
-                    name="DonationDetails"
-                    component={DonationDetails}
-                  />
-                </Stack.Navigator>
-              </NavigationContainer>
-            </View>
-          </BottomSheetProvider>
-        </SafeAreaProvider>
+                        headerTitleStyle: { color: "transparent" },
+                      }}
+                      name="DonationDetails"
+                      component={DonationDetails}
+                    />
+                  </Stack.Navigator>
+                </NavigationContainer>
+              </View>
+            </SafeAreaProvider>
+          </RoundedScreenCorners>
+        </DonationProvider>
       </LocationProvider>
     </GestureHandlerRootView>
   );

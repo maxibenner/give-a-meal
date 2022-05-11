@@ -9,3 +9,6 @@ export * from "./components/toastWithCounter/ToastWithCounter";
 export * from "./components/qrVoucher/QRVoucher";
 export * from "./components/bottomSheet/BottomSheet";
 export * from "./components/icon/Icon";
+export * from "./components/activityIndicatorText/ActivityIndicatorText";
+export * from "./components/bottomSheet/BottomSheet";
+export * from "./components/roundedScreenCorners/RoundedScreenCorners";

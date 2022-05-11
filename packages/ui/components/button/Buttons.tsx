@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  ActivityIndicator,
 } from "react-native";
 import { theme } from "../../theme";
 
@@ -15,6 +16,7 @@ type ButtonType = {
   style?: ViewStyle;
   textStyle?: TextStyle;
   icon?: any;
+  loading?: boolean;
   onPress?: () => void;
 };
 
@@ -25,6 +27,7 @@ export const Button = ({
   textStyle,
   size = "large",
   icon,
+  loading,
   onPress,
 }: ButtonType) => {
   if (type === "secondary") {
@@ -33,15 +36,21 @@ export const Button = ({
         style={[secondaryStyles.container, sizeStyles[size], style]}
         onPress={onPress}
       >
-        {icon && icon}
-        <Text
-          style={[
-            secondaryStyles.label,
-            { marginLeft: icon ? theme.spacing.xs : 0, ...textStyle },
-          ]}
-        >
-          {label}
-        </Text>
+        {!loading ? (
+          <>
+            {icon && icon}
+            <Text
+              style={[
+                secondaryStyles.label,
+                { marginLeft: icon ? theme.spacing.xs : 0, ...textStyle },
+              ]}
+            >
+              {label}
+            </Text>
+          </>
+        ) : (
+          <ActivityIndicator />
+        )}
       </TouchableOpacity>
     );
   } else if (type === "primary") {
@@ -50,15 +59,21 @@ export const Button = ({
         style={[primaryStyles.container, sizeStyles[size], style]}
         onPress={onPress}
       >
-        {icon && icon}
-        <Text
-          style={[
-            primaryStyles.label,
-            { marginLeft: icon ? theme.spacing.xs : 0, ...textStyle },
-          ]}
-        >
-          {label}
-        </Text>
+        {!loading ? (
+          <>
+            {icon && icon}
+            <Text
+              style={[
+                primaryStyles.label,
+                { marginLeft: icon ? theme.spacing.xs : 0, ...textStyle },
+              ]}
+            >
+              {label}
+            </Text>
+          </>
+        ) : (
+          <ActivityIndicator color={theme.colors.text_primary_light} />
+        )}
       </TouchableOpacity>
     );
   } else {
@@ -67,15 +82,21 @@ export const Button = ({
         style={[errorStyles.container, sizeStyles[size], style]}
         onPress={onPress}
       >
-        {icon && icon}
-        <Text
-          style={[
-            errorStyles.label,
-            { marginLeft: icon ? theme.spacing.xs : 0, ...textStyle },
-          ]}
-        >
-          {label}
-        </Text>
+        {!loading ? (
+          <>
+            {icon && icon}
+            <Text
+              style={[
+                errorStyles.label,
+                { marginLeft: icon ? theme.spacing.xs : 0, ...textStyle },
+              ]}
+            >
+              {label}
+            </Text>
+          </>
+        ) : (
+          <ActivityIndicator color={theme.colors.text_error} />
+        )}
       </TouchableOpacity>
     );
   }
