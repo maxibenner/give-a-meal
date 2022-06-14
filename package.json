@@ -11,5 +11,8 @@
     "apps/*",
     "packages/*"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "@react-native-community/async-storage": "^1.12.1",
+    "uuid4": "^2.0.2"
+  }
 }

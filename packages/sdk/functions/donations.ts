@@ -1,15 +1,29 @@
 import { PostgrestError } from "@supabase/supabase-js";
+import { httpsCallable, HttpsCallableResult } from "firebase/functions";
+import { functions } from "../constants/firebase";
 import { supabase } from "../constants/supabase";
-import { firebase } from "../constants/firebase";
-import { httpsCallable, getFunctions } from "firebase/functions";
 
-const functions = getFunctions(firebase);
+/**
+ * List business with donation count
+ * @param {number} id Id of the business
+ */
+export const getAvailableDonations = async (id: number) => {
+  const { data, error } = await supabase
+    .from("donations_w_business")
+    .select("*")
+    .eq("business_id", id)
+    .is("active", true)
+    .is("claimed_by", null);
+
+  if (error) return { error: error, data: null };
+  return { error: null, data: data };
+};
 
 /**
  * List all businesses with donations nearby
- * @param lat Latitude of user location
- * @param lon Longitued of user location
- * @param radius Search radius in miles
+ * @param {number} lat Latitude of user location
+ * @param {number} lon Longitued of user location
+ * @param {number} radius Search radius in miles
  */
 export const listNearbyBusinessesWithDonations = async ({
   lat,
@@ -47,34 +61,29 @@ export const claimDonation = async ({
   donationId: number;
   claimId: string;
 }) => {
-  const claimDonation_cf = httpsCallable<{
+  const response = (await httpsCallable<{
     donationId: number;
     storageId: string;
-  }>(functions, "claimDonation");
-
-  const res = await claimDonation_cf({
+  }>(
+    functions,
+    "claimDonation"
+  )({
     donationId: donationId,
     storageId: claimId,
-  });
-  if (res.data === "Success") {
-    return { status: 200, error: null };
-  }
-  if (res.data === "Maximum number of claimed donations reached") {
+  })) as HttpsCallableResult<{
+    data: { message: string; details: string; hint: string; code: number };
+    error: PostgrestError | null;
+  }>;
+
+  if (!response.data.error) {
     return {
-      status: 400,
-      error: {
-        code: "Too many reservations",
-        message: `You have reached the maximum number of allowed reservations.`,
-      },
+      message: "Success",
+      details: "Successfully claimed donation.",
+      hint: "",
+      code: 200,
     };
   } else {
-    return {
-      status: 400,
-      error: {
-        code: "Uncaught exception",
-        message: `There was an undefined problem when trying to claim the donation with the id ${donationId} and the storage id ${claimId}`,
-      },
-    };
+    return response.data.error;
   }
 };
 

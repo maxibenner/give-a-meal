@@ -1,5 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons";
 import {
+  BusinessType,
+  listNearbyBusinessesWithDonations,
   LocationContext,
   LocationContextType,
   prettifyMeters,
@@ -11,9 +13,9 @@ import {
   ToastWithCounter,
 } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { useContext, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
-  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -21,31 +23,55 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { DonationContext } from "../context/donationContext";
 
 // Component
 export const Search = ({ navigation }: { navigation: any }) => {
   // Contexts
   const { location, locationStatus, requestLocation }: LocationContextType =
     useContext(LocationContext);
-  const { refreshBusinesses, businessesWithDonations, businessesLoading } =
-    useContext(DonationContext);
+  const [businessesWithDonations, setBusinessesWithDonations] = useState<
+    BusinessType[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // State
   const [infoModal, setInfoModal] = useState(false);
 
-  // Handle pull-to-refresh indicator
-  const [refreshingManually, setRefreshingManually] = useState(false);
-  const handleManualRefresh = async () => {
-    if (location) {
-      setRefreshingManually(true);
-      refreshBusinesses && (await refreshBusinesses());
-      setRefreshingManually(false);
-    }
-  };
-
   // Request location on loaded
-  useEffect(() => requestLocation(), []);
+  useEffect(() => {
+    console.log("Requesting location");
+    requestLocation();
+  }, []);
+
+  // Load data after switching screen
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Location Status " + locationStatus);
+      if (locationStatus === "available") refreshData();
+    }, [locationStatus])
+  );
+
+  // Load data after location is available
+  useEffect(() => {
+    if (location) {
+      refreshData();
+    }
+  }, [location]);
+
+  const refreshData = async () => {
+    setIsLoading(true);
+    if (!location) return;
+    const { data, error } = await listNearbyBusinessesWithDonations({
+      lat: location.coords.latitude,
+      lon: location.coords.longitude,
+      radius: 9999999999,
+    });
+    setIsLoading(false);
+    if (error) {
+      return console.log(error);
+    }
+    setBusinessesWithDonations(data);
+  };
 
   return (
     <>
@@ -83,15 +109,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
             {location &&
               businessesWithDonations &&
               businessesWithDonations.length > 0 && (
-                <ScrollView
-                  style={styles.scrollView}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshingManually}
-                      onRefresh={() => handleManualRefresh()}
-                    />
-                  }
-                >
+                <ScrollView style={styles.scrollView}>
                   {/* Donations */}
                   {businessesWithDonations.length > 0 &&
                     businessesWithDonations?.map((business, i) => (
@@ -99,9 +117,9 @@ export const Search = ({ navigation }: { navigation: any }) => {
                         key={business.business_id}
                         onPress={() =>
                           navigation.navigate("Restaurant", {
+                            id: business.business_id,
                             name: business.business_name,
                             address: `${business.address}, ${business.city}`,
-                            donations: business.donations,
                             distance: prettifyMeters(business.distance),
                           })
                         }
@@ -133,8 +151,8 @@ export const Search = ({ navigation }: { navigation: any }) => {
             {/* Waiting for businesses */}
             {locationStatus === "available" &&
               location &&
-              businessesLoading &&
-              !refreshingManually && (
+              isLoading &&
+              businessesWithDonations.length === 0 && (
                 <ActivityIndicatorText
                   style={{ position: "absolute", alignSelf: "center" }}
                   text="Fetching donations"
@@ -167,7 +185,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
             )}
 
             {/* No donations */}
-            {!businessesLoading && businessesWithDonations.length === 0 && (
+            {!isLoading && businessesWithDonations.length === 0 && (
               <View style={styles.messageContainer}>
                 <Text
                   style={[
@@ -189,7 +207,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
                 <Button
                   type="secondary"
                   label="Refresh"
-                  onPress={() => refreshBusinesses && refreshBusinesses()}
+                  onPress={() => refreshData()}
                 />
               </View>
             )}

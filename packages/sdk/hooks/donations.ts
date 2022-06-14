@@ -20,7 +20,7 @@ export const useClaimedDonations = (claimId: string) => {
       .from("donations")
       .on("UPDATE", () => {
         getData(claimId);
-        console.log("update");
+        console.log("Donations updated by subscription.");
       })
       .subscribe();
   }, []);

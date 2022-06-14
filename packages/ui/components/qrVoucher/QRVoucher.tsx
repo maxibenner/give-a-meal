@@ -13,11 +13,13 @@ import { textStyles, theme } from "../../theme";
 import { Button } from "../button/Buttons";
 import { openMapsWithAddress } from "@give-a-meal/sdk";
 import { Ionicons } from "@expo/vector-icons";
+import { useEffect } from "react";
 
 const windowHeight = Dimensions.get("window").height;
 
 export const QRVoucher = ({
   title,
+  updatedAt,
   donationId,
   businessName,
   address,
@@ -26,6 +28,7 @@ export const QRVoucher = ({
   style,
 }: {
   title: string;
+  updatedAt: string;
   donationId: number;
   businessName: string;
   address: string;
@@ -40,6 +43,15 @@ export const QRVoucher = ({
     donation_id: donationId,
   });
 
+  function getFormattetExpireTime(timestamp, delayInSeconds) {
+    const expiryDate = new Date(
+      new Date(timestamp).getTime() + delayInSeconds * 1000
+    );
+    return `${expiryDate.getHours() - 12}:${expiryDate.getMinutes()} ${
+      expiryDate.getHours() >= 12 ? "PM" : "AM"
+    } `;
+  }
+
   return (
     <View style={[styles.container, style]}>
       {/* <TouchableOpacity
@@ -48,6 +60,12 @@ export const QRVoucher = ({
       >
         <Ionicons name="close" size={22} color="black" />
       </TouchableOpacity> */}
+      <View style={styles.expiryCounter}>
+        <Text style={styles.counterText}>{`Expires at ${getFormattetExpireTime(
+          updatedAt,
+          3600
+        )}`}</Text>
+      </View>
       <View
         style={styles.QRContainer}
         onLayout={(event) => {
@@ -118,7 +136,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.regular,
     height: windowHeight / 5 + theme.spacing.sm * 2,
     width: windowHeight / 5 + theme.spacing.sm * 2,
-    marginVertical: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
   },
   contentContainer: {
     marginTop: theme.spacing.md,
@@ -150,5 +169,21 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     opacity: 0.15,
     backgroundColor: theme.colors.text_primary_light,
+  },
+  expiryCounter: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    top: theme.spacing.sm,
+    left: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.sm,
+    width: "auto",
+    height: 20,
+    borderRadius: 20,
+    opacity: 0.6,
+    backgroundColor: theme.colors.text_primary_light,
+  },
+  counterText: {
+    fontWeight: "bold",
   },
 });

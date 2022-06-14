@@ -11,7 +11,6 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { DonationProvider } from "./context/donationContext";
 import MyTabBar from "./navigators/CustomTab";
 import DonationDetails from "./screens/DonationDetails";
 import Reserved from "./screens/Reserved";
@@ -19,6 +18,7 @@ import Restaurant from "./screens/Restaurant";
 import Search from "./screens/Search";
 import Start from "./screens/Start";
 import { RoundedScreenCorners } from "@give-a-meal/ui";
+import { ClaimIdProvider } from "@give-a-meal/sdk";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -54,8 +54,8 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <LocationProvider>
-        <DonationProvider>
+      <ClaimIdProvider>
+        <LocationProvider>
           <RoundedScreenCorners>
             <SafeAreaProvider>
               <View style={styles.container}>
@@ -108,8 +108,8 @@ export default function App() {
               </View>
             </SafeAreaProvider>
           </RoundedScreenCorners>
-        </DonationProvider>
-      </LocationProvider>
+        </LocationProvider>
+      </ClaimIdProvider>
     </GestureHandlerRootView>
   );
 }

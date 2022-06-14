@@ -3,7 +3,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { DonationType } from "@give-a-meal/sdk";
 import { BottomSheet, Icon } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { ActivityIndicator } from "react-native";
 import {
   SafeAreaView,
   ScrollView,
@@ -12,6 +13,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { getAvailableDonations } from "@give-a-meal/sdk";
 
 export const Restaurant = ({
   route,
@@ -21,14 +24,35 @@ export const Restaurant = ({
   route: any;
 }) => {
   const {
+    id,
     name,
     address,
-    donations,
     distance,
-  }: { distance: number; name: string; address: string; donations: [] } =
-    route.params;
+  }: {
+    id: number;
+    distance: number;
+    name: string;
+    address: string;
+  } = route.params;
 
   const [infoModal, setInfoModal] = useState(false);
+  const [donations, setDonations] = useState<any[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
+
+  // Trigger when showing screen
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+  const loadData = async () => {
+    // setIsLoading(true);
+    const { data, error } = await getAvailableDonations(id);
+    // setIsLoading(false);
+    if (error) return console.log(error);
+    setDonations(data);
+  };
 
   return (
     <>
@@ -71,32 +95,34 @@ export const Restaurant = ({
         </View>
 
         <ScrollView style={styles.scrollView}>
-          {donations.map((donation: DonationType, i: number) => (
-            <TouchableOpacity
-              key={donation.donation_id}
-              style={[
-                styles.donationContainer,
-                {
-                  marginBottom: donations.length >= i ? theme.spacing.xs : 0,
-                },
-              ]}
-              onPress={() =>
-                navigation.navigate("DonationDetails", {
-                  title: donation.title,
-                  description: donation.description,
-                  donatedBy: donation.donor_name,
-                  donationId: donation.donation_id,
-                })
-              }
-            >
-              <Text style={styles.donationTitle}>{donation.title}</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={24}
-                color={theme.colors.element_dark_inactive}
-              />
-            </TouchableOpacity>
-          ))}
+          {donations.map(
+            (donation: DonationType & { id: number }, i: number) => (
+              <TouchableOpacity
+                key={donation.id}
+                style={[
+                  styles.donationContainer,
+                  {
+                    marginBottom: donations.length >= i ? theme.spacing.xs : 0,
+                  },
+                ]}
+                onPress={() =>
+                  navigation.navigate("DonationDetails", {
+                    title: donation.title,
+                    description: donation.description,
+                    donatedBy: donation.donor_name,
+                    donationId: donation.id,
+                  })
+                }
+              >
+                <Text style={styles.donationTitle}>{donation.title}</Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={24}
+                  color={theme.colors.element_dark_inactive}
+                />
+              </TouchableOpacity>
+            )
+          )}
         </ScrollView>
       </SafeAreaView>
     </>

@@ -1,4 +1,5 @@
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { firebaseConfig } from "./env";
 
 var firebase: FirebaseApp | undefined;
@@ -17,4 +18,9 @@ if (!firebase) {
   firebase = initializeApp(clientCredentials);
 }
 
-export { firebase };
+const functions = getFunctions(firebase);
+
+// Connect emulator
+connectFunctionsEmulator(functions, "localhost", 5001);
+
+export { firebase, functions };

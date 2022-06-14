@@ -1,8 +1,8 @@
 import { useAppIsActive } from "../hooks/useAppIsActive";
 import * as Location from "expo-location";
 import { Linking, Platform } from "react-native";
-import { LocationObject, PermissionStatus } from "expo-location";
-import React, { createContext, ReactNode, useState, useEffect } from "react";
+import { LocationObject } from "expo-location";
+import React, { createContext, ReactNode, useState } from "react";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 
 // Context ---------  Context ---------  Context ---------  Context ---------

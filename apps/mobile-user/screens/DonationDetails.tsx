@@ -1,8 +1,9 @@
 import { Button, BottomSheet } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { useState, useContext } from "react";
+import { SafeAreaView, StyleSheet, Text, View, Alert } from "react-native";
 import { claimDonation } from "@give-a-meal/sdk";
+import { ClaimIdContext } from "@give-a-meal/sdk";
 
 export const DonationDetails = ({
   route,
@@ -12,26 +13,37 @@ export const DonationDetails = ({
   route: any;
 }) => {
   const { title, description, donatedBy, donationId } = route.params;
+  const claimId = useContext(ClaimIdContext);
 
   // Modals
   const [isConfirming, setIsConfirming] = useState(false);
   const [isReserving, setIsReserving] = useState(false);
-  const [isError, setIsError] = useState(false);
 
-  const confirmReservation = async () => {
+  function createErrorAlert(title: string, msg: string) {
+    Alert.alert(title, msg, [
+      {
+        text: "Go back",
+        onPress: () => navigation.navigate("Search"),
+        style: "cancel",
+      },
+    ]);
+  }
+
+  async function confirmReservation() {
     setIsReserving(true);
-    const res = await claimDonation({ donationId: donationId, claimId: "001" });
-    console.log(res);
+    const res = await claimDonation({
+      donationId: donationId,
+      claimId: claimId,
+    });
     setIsReserving(false);
-    return;
-    if (res.status === 200) {
-      setIsReserving(false);
+    setIsConfirming(false);
+
+    if (res.code === 200) {
       navigation.navigate("Reserved");
     } else {
-      setIsReserving(false);
-      setIsError(true);
+      createErrorAlert(res.message, res.details);
     }
-  };
+  }
 
   return (
     <>
@@ -47,7 +59,7 @@ export const DonationDetails = ({
           </View>
           <Button
             style={{ backgroundColor: theme.colors.text_link }}
-            label="Reserve this meal"
+            label="Claim this meal"
             onPress={() => setIsConfirming(true)}
           />
         </View>
@@ -62,8 +74,8 @@ export const DonationDetails = ({
       >
         <View>
           <Text style={[textStyles.body, { marginBottom: theme.spacing.md }]}>
-            This reservation will last for 1 hour. You can reserve a maximum of
-            3 meals at the same time.
+            Claiming this meal will reserve it for 1 hour. You can reserve a
+            maximum of 3 meals at the same time.
           </Text>
           <View style={styles.buttonContainer}>
             <Button
@@ -74,7 +86,7 @@ export const DonationDetails = ({
                 marginRight: 4,
                 backgroundColor: theme.colors.text_link,
               }}
-              label="Reserve"
+              label="Claim"
             />
             <Button
               onPress={() => !isReserving && setIsConfirming(false)}
@@ -83,19 +95,6 @@ export const DonationDetails = ({
               label="Cancel"
             />
           </View>
-        </View>
-      </BottomSheet>
-
-      {/* Error modal */}
-      <BottomSheet
-        title="Error"
-        active={isError}
-        onCloseRequest={() => setIsError(false)}
-      >
-        <View>
-          <Text style={textStyles.body}>
-            We couldn't reserve this meal. Please try again later.
-          </Text>
         </View>
       </BottomSheet>
     </>

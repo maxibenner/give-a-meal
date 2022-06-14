@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Dimensions, Modal, StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -10,17 +10,28 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { effects, textStyles, theme } from "../../theme";
 
+/**
+ *
+ * @param title Title to display on modal header
+ * @param active Show and hide the modal
+ * @param children Content do display inside of the modal
+ * @param onCloseRequest Pass a function that will be called when modal is dismissed by swiping down or tapping the background
+ * @param block Prevents modal to be closed from internal interaction when set to true
+ * @returns
+ */
 export const BottomSheet = ({
   active,
   onCloseRequest,
   block,
   children,
+  error,
   title,
 }: {
   active: boolean;
   onCloseRequest: () => void;
   block?: boolean;
   children: ReactNode;
+  error?: boolean;
   title?: string;
 }) => {
   // Layout
@@ -127,7 +138,16 @@ export const BottomSheet = ({
         >
           <View style={styles.headerBar}>
             <View style={styles.handle} />
-            <Text style={styles.headerText}>
+            <Text
+              style={[
+                styles.headerText,
+                {
+                  color: error
+                    ? theme.colors.text_error
+                    : theme.colors.text_primary_dark,
+                },
+              ]}
+            >
               {title ? title : "Information"}
             </Text>
           </View>

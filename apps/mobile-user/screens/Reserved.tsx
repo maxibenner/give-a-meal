@@ -19,7 +19,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { DonationContext } from "../context/donationContext";
+// import { DonationContext } from "../context/donationContext";
+import { useClaimedDonations } from "@give-a-meal/sdk";
+import { ClaimIdContext } from "@give-a-meal/sdk";
 
 const { width } = Dimensions.get("window");
 
@@ -29,8 +31,8 @@ const EMPTY_ITEM_SIZE = theme.spacing.md;
 
 export const Reserved = () => {
   const [meals, setMeals] = useState<any>([]);
-  const { claimedDonations, claimedDonationsLoading } =
-    useContext(DonationContext);
+  const claimId = useContext(ClaimIdContext);
+  const { donationsLoading, claimedDonations } = useClaimedDonations(claimId);
 
   useEffect(() => {
     // Set data and add spacers for correct display of scrollview
@@ -45,7 +47,7 @@ export const Reserved = () => {
   const translateY = useRef(new Animated.Value(10)).current;
 
   useEffect(() => {
-    if (!claimedDonationsLoading) {
+    if (!donationsLoading) {
       Animated.spring(opacity, {
         toValue: 1,
         useNativeDriver: true,
@@ -55,7 +57,7 @@ export const Reserved = () => {
         useNativeDriver: true,
       }).start();
     }
-  }, [claimedDonationsLoading]);
+  }, [donationsLoading]);
 
   return (
     <SafeAreaView style={styles.wrapper}>
@@ -83,12 +85,12 @@ export const Reserved = () => {
 
       <View style={styles.contentWrapper}>
         {/* Loading */}
-        {claimedDonationsLoading && (
+        {donationsLoading && (
           <ActivityIndicatorText text="Fetching reserved meals" />
         )}
 
         {/* Display reservations */}
-        {!claimedDonationsLoading && meals.length > 2 && (
+        {!donationsLoading && meals.length > 2 && (
           <FlatList
             data={meals}
             showsHorizontalScrollIndicator={false}
@@ -121,6 +123,7 @@ export const Reserved = () => {
                     <QRVoucher
                       style={styles.voucher}
                       // onCancel={() => handleCancel(item.id)}
+                      updatedAt={item.updated_at}
                       title={item.item_id.title}
                       donationId={item.id}
                       address={`${item.item_id.business_id.address}, ${item.item_id.business_id.city}`}
@@ -135,7 +138,7 @@ export const Reserved = () => {
         )}
 
         {/* No reservations */}
-        {!claimedDonationsLoading && meals.length === 2 && (
+        {!donationsLoading && meals.length === 2 && (
           <View style={styles.phContainer}>
             <Image
               style={styles.phImage}
