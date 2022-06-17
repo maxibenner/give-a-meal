@@ -1,5 +1,12 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Dimensions, Modal, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -152,7 +159,15 @@ export const BottomSheet = ({
             </Text>
           </View>
 
-          <View style={[styles.content, { marginBottom: insets.bottom }]}>
+          <View
+            style={[
+              styles.content,
+              {
+                marginBottom:
+                  Platform.OS === "android" ? theme.spacing.md : insets.bottom,
+              },
+            ]}
+          >
             {children}
           </View>
         </Animated.View>

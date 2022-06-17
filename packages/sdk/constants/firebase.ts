@@ -21,6 +21,6 @@ if (!firebase) {
 const functions = getFunctions(firebase);
 
 // Connect emulator
-connectFunctionsEmulator(functions, "localhost", 5001);
+// connectFunctionsEmulator(functions, "localhost", 5001);
 
 export { firebase, functions };

@@ -1,13 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@give-a-meal/ui";
 import { effects, theme } from "@give-a-meal/ui/theme";
+import {
+  ParamListBase, TabNavigationState
+} from "@react-navigation/native";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  TabNavigationState,
-  ParamListBase,
-  TabRouterOptions,
-} from "@react-navigation/native";
 
 interface MyTabBar {
   state: TabNavigationState<ParamListBase>;

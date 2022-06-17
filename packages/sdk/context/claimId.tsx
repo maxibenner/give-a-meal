@@ -4,7 +4,7 @@ import uuid4 from "uuid4";
 
 // Context ---------  Context ---------  Context ---------  Context ---------
 export const ClaimIdContext = createContext<ClaimIdContextType>(null);
-export type ClaimIdContextType = string;
+export type ClaimIdContextType = string | null;
 
 // Provider ---------  Provider ---------  Provider ---------  Provider ---------
 export function ClaimIdProvider({ children }: { children: ReactNode }) {

@@ -31,6 +31,7 @@ export const DonationDetails = ({
 
   async function confirmReservation() {
     setIsReserving(true);
+    if (!claimId) return;
     const res = await claimDonation({
       donationId: donationId,
       claimId: claimId,

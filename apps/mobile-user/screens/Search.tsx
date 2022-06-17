@@ -22,6 +22,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
 } from "react-native";
 
 // Component
@@ -47,7 +48,9 @@ export const Search = ({ navigation }: { navigation: any }) => {
   useFocusEffect(
     useCallback(() => {
       console.log("Location Status " + locationStatus);
-      if (locationStatus === "available") refreshData();
+      if (locationStatus === "available") {
+        refreshData();
+      }
     }, [locationStatus])
   );
 
@@ -88,7 +91,14 @@ export const Search = ({ navigation }: { navigation: any }) => {
       </BottomSheet>
 
       {/* Main content */}
-      <SafeAreaView style={styles.pageWrapper}>
+      <SafeAreaView
+        style={[
+          styles.pageWrapper,
+          {
+            paddingTop: Platform.OS === "android" ? theme.spacing.lg : 0,
+          },
+        ]}
+      >
         <View style={styles.wrapper}>
           <View style={styles.titleContainer}>
             <TouchableOpacity
@@ -126,7 +136,9 @@ export const Search = ({ navigation }: { navigation: any }) => {
                       >
                         <ToastWithCounter
                           counter={business.donations.length}
-                          counterLabel="Meals"
+                          counterLabel={
+                            business.donations.length > 1 ? "Meals" : "Meal"
+                          }
                           title={business.business_name}
                           info={
                             prettifyMeters(business.distance) + " miles away"
@@ -137,6 +149,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
                         )}
                       </TouchableOpacity>
                     ))}
+                  <View style={{ height: theme.spacing.lg }} />
                 </ScrollView>
               )}
 
@@ -223,12 +236,15 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.bg_main,
   },
   wrapper: {
-    marginHorizontal: theme.spacing.md,
+    // marginHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
     flexDirection: "column",
     height: "100%",
   },
   // Title
-  titleContainer: {},
+  titleContainer: {
+    marginHorizontal: theme.spacing.md,
+  },
   titleTouchable: {
     flexDirection: "row",
     alignItems: "center",
@@ -246,6 +262,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
   },
   messageContainer: {
     flex: 1,

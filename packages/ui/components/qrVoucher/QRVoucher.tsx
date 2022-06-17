@@ -28,7 +28,7 @@ export const QRVoucher = ({
   style,
 }: {
   title: string;
-  updatedAt: string;
+  updatedAt: number;
   donationId: number;
   businessName: string;
   address: string;
@@ -43,7 +43,10 @@ export const QRVoucher = ({
     donation_id: donationId,
   });
 
-  function getFormattetExpireTime(timestamp, delayInSeconds) {
+  function getFormattetExpireTime(
+    timestamp: number,
+    delayInSeconds: number
+  ) {
     const expiryDate = new Date(
       new Date(timestamp).getTime() + delayInSeconds * 1000
     );

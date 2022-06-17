@@ -4,7 +4,8 @@ import { DonationType } from "@give-a-meal/sdk";
 import { BottomSheet, Icon } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
 import { useEffect, useState, useCallback } from "react";
-import { ActivityIndicator } from "react-native";
+import { StatusBar, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   SafeAreaView,
   ScrollView,
@@ -37,6 +38,7 @@ export const Restaurant = ({
 
   const [infoModal, setInfoModal] = useState(false);
   const [donations, setDonations] = useState<any[]>([]);
+  const insets = useSafeAreaInsets();
   // const [isLoading, setIsLoading] = useState(true);
 
   // Trigger when showing screen
@@ -51,7 +53,7 @@ export const Restaurant = ({
     const { data, error } = await getAvailableDonations(id);
     // setIsLoading(false);
     if (error) return console.log(error);
-    setDonations(data);
+    if (data) setDonations(data);
   };
 
   return (
@@ -68,7 +70,7 @@ export const Restaurant = ({
       </BottomSheet>
 
       {/* Main content */}
-      <SafeAreaView style={styles.wrapper}>
+      <SafeAreaView style={[styles.wrapper, { marginBottom: -insets.bottom }]}>
         <View style={styles.contentTop}>
           <Text style={styles.restaurantName}>{name}</Text>
           <View style={styles.addressContainer}>
@@ -106,7 +108,7 @@ export const Restaurant = ({
                   },
                 ]}
                 onPress={() =>
-                  navigation.navigate("DonationDetails", {
+                  navigation.navigate("Donation Details", {
                     title: donation.title,
                     description: donation.description,
                     donatedBy: donation.donor_name,
@@ -123,6 +125,7 @@ export const Restaurant = ({
               </TouchableOpacity>
             )
           )}
+          <View style={{ height: theme.spacing.lg + insets.bottom }} />
         </ScrollView>
       </SafeAreaView>
     </>

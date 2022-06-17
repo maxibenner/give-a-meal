@@ -1,9 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import {
-  ActivityIndicatorText,
-  Button,
-  QRVoucher,
-  BottomSheet,
+  ActivityIndicatorText, BottomSheet, QRVoucher
 } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -17,11 +14,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 // import { DonationContext } from "../context/donationContext";
-import { useClaimedDonations } from "@give-a-meal/sdk";
-import { ClaimIdContext } from "@give-a-meal/sdk";
+import { ClaimIdContext, useClaimedDonations } from "@give-a-meal/sdk";
 
 const { width } = Dimensions.get("window");
 
@@ -60,7 +56,14 @@ export const Reserved = () => {
   }, [donationsLoading]);
 
   return (
-    <SafeAreaView style={styles.wrapper}>
+    <SafeAreaView
+      style={[
+        styles.wrapper,
+        {
+          paddingTop: Platform.OS === "android" ? theme.spacing.lg : 0,
+        },
+      ]}
+    >
       <BottomSheet
         active={infoModal}
         onCloseRequest={() => setInfoModal(false)}
@@ -166,6 +169,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
   },
   title: {
     ...textStyles.label_button,

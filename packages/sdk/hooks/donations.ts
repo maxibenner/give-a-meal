@@ -6,11 +6,13 @@ import { listClaimedDonations } from "../functions/donations";
  * Subscribe to changes in the claimed donations
  * @param claimId Id that has been used to claim the donations
  */
-export const useClaimedDonations = (claimId: string) => {
+export const useClaimedDonations = (claimId: string | null) => {
   const [claimedDonations, setClaimedDonations] = useState<any[]>([]);
   const [donationsLoading, setDonationsLoading] = useState(true);
 
   useEffect(() => {
+    if (!claimId) return;
+    
     // Initial fetch
     getData(claimId);
 
@@ -23,7 +25,7 @@ export const useClaimedDonations = (claimId: string) => {
         console.log("Donations updated by subscription.");
       })
       .subscribe();
-  }, []);
+  }, [claimId]);
 
   const getData = (claimId: string) => {
     listClaimedDonations(claimId).then(({ data, error }) => {

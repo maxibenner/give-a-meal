@@ -27,7 +27,7 @@ export const TextInput = ({
   const [hasText, setHasText] = useState(false);
 
   // Track width of label to calculate accurate animation
-  const [labelWidth, setLabelWidth] = useState();
+  const [labelWidth, setLabelWidth] = useState(null);
   const handleLayout = (e: any) => {
     setLabelWidth(e.nativeEvent.layout.width);
   };
@@ -49,7 +49,7 @@ export const TextInput = ({
 
   // Animate functions
   const labelAnimateOut = (instant?: boolean) => {
-    if (labelWidth) {
+    if (typeof labelWidth === "number") {
       Animated.timing(labelY, {
         toValue: -12,
         duration: instant ? 0 : 200,

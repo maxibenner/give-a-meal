@@ -103,62 +103,72 @@ export const listClaimedDonations = async (claimId: string) => {
 
 const groupDonationsByBusiness = (data: QueryResponse[]) => {
   let businesses: BusinessType[] = [];
-  data.forEach((donation) => {
+
+  for (let i_data = 0; i_data < data.length; i_data++) {
     // Create donation object
     const newDonation = {
-      donation_id: donation.id,
-      description: donation.description,
-      title: donation.title,
-      active: donation.active,
-      claimed_by: donation.claimed_by,
-      donor_name: donation.donor_name,
-      updated_at: donation.updated_at,
+      donation_id: data[i_data].id,
+      description: data[i_data].description,
+      title: data[i_data].title,
+      active: data[i_data].active,
+      claimed_by: data[i_data].claimed_by,
+      donor_name: data[i_data].donor_name,
+      updated_at: data[i_data].updated_at,
     };
 
-    // Continue for non empty businesses array
-    businesses.forEach((business, i) => {
-      // Check if business already exists in group array
-      if (business.business_id === donation.business_id) {
-        // Push new donation to existing business
-        businesses[i].donations.push(newDonation);
-      } else {
-        // Create new business object with donation
-        const newBusiness = {
-          business_id: business.business_id,
-          business_name: business.business_name,
-          address: business.address,
-          city: business.city,
-          country: business.country,
-          distance: business.distance,
-          lat: business.lat,
-          lon: business.lon,
-          postal_code: business.postal_code,
-          state: business.state,
-          donations: [newDonation],
-        };
-        businesses.push(newBusiness);
+    // If businesses array contains businesses
+    if (businesses.length !== 0) {
+      // Loop through businesses
+      for (
+        let i_businesses = 0;
+        i_businesses < businesses.length;
+        i_businesses++
+      ) {
+        // Check if business already exists in array
+        if (businesses[i_businesses].business_id === data[i_data].business_id) {
+          // Push new donation to existing business
+          businesses[i_businesses].donations.push(newDonation);
+          break;
+        } else {
+          // Create new business object with donation
+          if (i_businesses + 1 === businesses.length) {
+            const newBusiness = {
+              business_id: data[i_data].business_id,
+              business_name: data[i_data].business_name,
+              address: data[i_data].address,
+              city: data[i_data].city,
+              country: data[i_data].country,
+              distance: data[i_data].distance,
+              lat: data[i_data].lat,
+              lon: data[i_data].lon,
+              postal_code: data[i_data].postal_code,
+              state: data[i_data].state,
+              donations: [newDonation],
+            };
+            businesses.push(newBusiness);
+            break;
+          }
+        }
       }
-    });
-
-    // If businesses is empty
-    if (businesses.length === 0) {
+    } else {
       // Create new business object with donation
       const newBusiness = {
-        business_id: donation.business_id,
-        business_name: donation.business_name,
-        address: donation.address,
-        city: donation.city,
-        country: donation.country,
-        distance: donation.distance,
-        lat: donation.lat,
-        lon: donation.lon,
-        postal_code: donation.postal_code,
-        state: donation.state,
+        business_id: data[i_data].business_id,
+        business_name: data[i_data].business_name,
+        address: data[i_data].address,
+        city: data[i_data].city,
+        country: data[i_data].country,
+        distance: data[i_data].distance,
+        lat: data[i_data].lat,
+        lon: data[i_data].lon,
+        postal_code: data[i_data].postal_code,
+        state: data[i_data].state,
         donations: [newDonation],
       };
       businesses.push(newBusiness);
     }
-  });
+  }
+
   return businesses;
 };
 

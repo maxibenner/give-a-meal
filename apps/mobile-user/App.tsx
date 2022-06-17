@@ -8,7 +8,7 @@ import AppLoading from "expo-app-loading";
 import { Asset } from "expo-asset";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import MyTabBar from "./navigators/CustomTab";
@@ -64,7 +64,10 @@ export default function App() {
                   <Stack.Navigator
                     initialRouteName="Start"
                     screenOptions={{
-                      headerTransparent: true,
+                      headerShadowVisible: false,
+                      headerTitleStyle: {
+                        color: theme.colors.bg_main,
+                      },
                       headerStyle: {
                         backgroundColor: "transparent",
                       },
@@ -74,12 +77,14 @@ export default function App() {
                     <Stack.Screen
                       name="Start"
                       options={{
+                        headerShown: false,
                         headerTintColor: "transparent",
                       }}
                       component={Start}
                     />
                     <Stack.Screen
                       options={{
+                        headerShown: false,
                         headerTintColor: "transparent",
                       }}
                       name="MainTabs"
@@ -87,20 +92,19 @@ export default function App() {
                     />
                     <Stack.Screen
                       options={{
-                        headerBackTitle: "back",
-
-                        headerTitleStyle: { color: "transparent" },
+                        headerTransparent: Platform.OS === "ios" ? true : false,
+                        headerBackTitle: "Back",
                       }}
                       name="Restaurant"
                       component={Restaurant}
                     />
                     <Stack.Screen
                       options={{
-                        headerBackTitle: "back",
-
-                        headerTitleStyle: { color: "transparent" },
+                        headerTransparent: Platform.OS === "ios" ? true : false,
+                        headerBackTitle: "Back",
+                        // headerTitleStyle: { color: "transparent" },
                       }}
-                      name="DonationDetails"
+                      name="Donation Details"
                       component={DonationDetails}
                     />
                   </Stack.Navigator>
@@ -119,11 +123,7 @@ const MainTabs = ({ navigation }: any) => {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
-        headerTransparent: true,
-        headerStyle: {
-          backgroundColor: "transparent",
-        },
-        headerTintColor: "transparent",
+        headerShown: false,
       }}
       tabBar={(props) => <MyTabBar {...props} />}
     >

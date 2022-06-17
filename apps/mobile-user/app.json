@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile-user",
-    "slug": "mobile-user",
+    "name": "Give a Meal",
+    "slug": "give-a-meal-user",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,12 +17,14 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "icon": "./assets/icon.png",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.maxibenner.mobileuser"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/android_foreground_icon.png",
+        "backgroundColor": "#B3F6B2"
       }
     },
     "web": {
