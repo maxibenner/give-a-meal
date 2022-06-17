@@ -12,9 +12,10 @@ export const kilometersToMiles = (value: number) => {
 export const prettifyMeters = (value: number) => {
   const kilometers = value / 1000;
   const miles = kilometersToMiles(kilometers);
+  const feet = miles * 5280;
 
-  if (miles < 1) return miles.toFixed(2);
-  if (miles <= 10) return miles.toFixed(1);
-  if (miles > 10) return miles.toFixed(0);
+  if (miles < 0.1) return `${feet.toFixed(0)} feet away`;
+  if (miles <= 10) return miles.toFixed(1) + " miles away";
+  if (miles > 10) return miles.toFixed(0) + " miles away";
   else return miles.toFixed(2);
 };

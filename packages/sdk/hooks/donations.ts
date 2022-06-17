@@ -12,12 +12,12 @@ export const useClaimedDonations = (claimId: string | null) => {
 
   useEffect(() => {
     if (!claimId) return;
-    
+
     // Initial fetch
     getData(claimId);
 
     // Subscribe to changes
-    supabase
+    const donations = supabase
       // .from(`donations:claimed_by=eq.${claimId}`)
       .from("donations")
       .on("UPDATE", () => {
@@ -25,6 +25,10 @@ export const useClaimedDonations = (claimId: string | null) => {
         console.log("Donations updated by subscription.");
       })
       .subscribe();
+
+    return () => {
+      supabase.removeSubscription(donations);
+    };
   }, [claimId]);
 
   const getData = (claimId: string) => {

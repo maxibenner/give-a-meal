@@ -50,6 +50,8 @@ export const Search = ({ navigation }: { navigation: any }) => {
       console.log("Location Status " + locationStatus);
       if (locationStatus === "available") {
         refreshData();
+        console.log("refreshing");
+        return undefined;
       }
     }, [locationStatus])
   );
@@ -67,7 +69,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
     const { data, error } = await listNearbyBusinessesWithDonations({
       lat: location.coords.latitude,
       lon: location.coords.longitude,
-      radius: 9999999999,
+      radius: 10000,
     });
     setIsLoading(false);
     if (error) {
@@ -141,7 +143,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
                           }
                           title={business.business_name}
                           info={
-                            prettifyMeters(business.distance) + " miles away"
+                            prettifyMeters(business.distance)
                           }
                         />
                         {businessesWithDonations.length !== i + 1 && (

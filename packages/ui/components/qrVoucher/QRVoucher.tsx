@@ -1,19 +1,16 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { openMapsWithAddress } from "@give-a-meal/sdk";
 import { useState } from "react";
 import {
   Dimensions,
   StyleSheet,
   Text,
   View,
-  ViewStyle,
-  TouchableOpacity,
+  ViewStyle
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { textStyles, theme } from "../../theme";
 import { Button } from "../button/Buttons";
-import { openMapsWithAddress } from "@give-a-meal/sdk";
-import { Ionicons } from "@expo/vector-icons";
-import { useEffect } from "react";
 
 const windowHeight = Dimensions.get("window").height;
 

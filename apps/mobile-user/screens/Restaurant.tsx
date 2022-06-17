@@ -79,9 +79,7 @@ export const Restaurant = ({
           </View>
           <View style={styles.distanceContainer}>
             <Icon name="pin" />
-            <Text style={{ marginLeft: theme.spacing.xs }}>
-              {distance + " miles away"}
-            </Text>
+            <Text style={{ marginLeft: theme.spacing.xs }}>{distance}</Text>
           </View>
           <TouchableOpacity
             style={styles.titleContainer}
