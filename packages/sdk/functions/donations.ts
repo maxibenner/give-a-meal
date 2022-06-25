@@ -50,6 +50,36 @@ export const listNearbyBusinessesWithDonations = async ({
 };
 
 /**
+ * Subscribe to donations
+ * @param {string} claimId Id to identify claims of user
+ * @param {(DonationType[]) => void} callback Runs on update, receives updated data
+ */
+export const subscribeToDonations = (
+  claimId: string,
+  callback: (data: DonationType[]) => void
+) => {
+  // Initial data fetch
+  listClaimedDonations(claimId).then(
+    ({ data, error }) => data && callback(data)
+  );
+
+  // Fetch on update
+  const subId = supabase
+    .from("donations")
+    .on("UPDATE", () => {
+      listClaimedDonations(claimId).then(
+        ({ data, error }) => data && callback(data)
+      );
+    })
+    .subscribe();
+
+  return () => {
+    console.log("removing");
+    supabase.removeSubscription(subId);
+  };
+};
+
+/**
  * List all donations claimed by user with claimId
  * @param donationId Donation id
  * @param claimId Id to identify claim (needs to be saved locally by user)

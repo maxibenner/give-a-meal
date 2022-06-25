@@ -18,7 +18,7 @@ import Restaurant from "./screens/Restaurant";
 import Search from "./screens/Search";
 import Start from "./screens/Start";
 import { RoundedScreenCorners } from "@give-a-meal/ui";
-import { ClaimIdProvider } from "@give-a-meal/sdk";
+import { ClaimsProvider } from "@give-a-meal/sdk";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -54,7 +54,7 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ClaimIdProvider>
+      <ClaimsProvider>
         <LocationProvider>
           <RoundedScreenCorners>
             <SafeAreaProvider>
@@ -102,7 +102,6 @@ export default function App() {
                       options={{
                         headerTransparent: Platform.OS === "ios" ? true : false,
                         headerBackTitle: "Back",
-                        // headerTitleStyle: { color: "transparent" },
                       }}
                       name="Donation Details"
                       component={DonationDetails}
@@ -113,7 +112,7 @@ export default function App() {
             </SafeAreaProvider>
           </RoundedScreenCorners>
         </LocationProvider>
-      </ClaimIdProvider>
+      </ClaimsProvider>
     </GestureHandlerRootView>
   );
 }

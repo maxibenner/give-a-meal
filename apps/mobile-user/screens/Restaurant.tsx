@@ -3,9 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { DonationType } from "@give-a-meal/sdk";
 import { BottomSheet, Icon } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { useEffect, useState, useCallback } from "react";
-import { StatusBar, Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -14,8 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
-import { getAvailableDonations } from "@give-a-meal/sdk";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const Restaurant = ({
   route,
@@ -29,32 +26,17 @@ export const Restaurant = ({
     name,
     address,
     distance,
+    donations,
   }: {
     id: number;
     distance: number;
     name: string;
     address: string;
+    donations: DonationType[] | [];
   } = route.params;
 
   const [infoModal, setInfoModal] = useState(false);
-  const [donations, setDonations] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
-  // const [isLoading, setIsLoading] = useState(true);
-
-  // Trigger when showing screen
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [])
-  );
-
-  const loadData = async () => {
-    // setIsLoading(true);
-    const { data, error } = await getAvailableDonations(id);
-    // setIsLoading(false);
-    if (error) return console.log(error);
-    if (data) setDonations(data);
-  };
 
   return (
     <>
@@ -65,7 +47,7 @@ export const Restaurant = ({
         onCloseRequest={() => setInfoModal(false)}
       >
         <Text style={textStyles.body}>
-          {`You can reserve any of these meals for free and pick them up at ${name}.`}
+          {`You can reserve any of these meals and pick them up for free at ${name}.`}
         </Text>
       </BottomSheet>
 
@@ -95,10 +77,10 @@ export const Restaurant = ({
         </View>
 
         <ScrollView style={styles.scrollView}>
-          {donations.map(
-            (donation: DonationType & { id: number }, i: number) => (
+          {donations.length > 0 &&
+            donations.map((donation: DonationType, i: number) => (
               <TouchableOpacity
-                key={donation.id}
+                key={donation.donation_id}
                 style={[
                   styles.donationContainer,
                   {
@@ -110,7 +92,7 @@ export const Restaurant = ({
                     title: donation.title,
                     description: donation.description,
                     donatedBy: donation.donor_name,
-                    donationId: donation.id,
+                    donationId: donation.donation_id,
                   })
                 }
               >
@@ -121,8 +103,7 @@ export const Restaurant = ({
                   color={theme.colors.element_dark_inactive}
                 />
               </TouchableOpacity>
-            )
-          )}
+            ))}
           <View style={{ height: theme.spacing.lg + insets.bottom }} />
         </ScrollView>
       </SafeAreaView>

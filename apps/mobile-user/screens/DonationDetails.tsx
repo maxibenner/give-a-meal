@@ -3,7 +3,7 @@ import { textStyles, theme } from "@give-a-meal/ui/theme";
 import { useState, useContext } from "react";
 import { SafeAreaView, StyleSheet, Text, View, Alert } from "react-native";
 import { claimDonation } from "@give-a-meal/sdk";
-import { ClaimIdContext } from "@give-a-meal/sdk";
+import { ClaimsContext } from "@give-a-meal/sdk";
 
 export const DonationDetails = ({
   route,
@@ -13,7 +13,7 @@ export const DonationDetails = ({
   route: any;
 }) => {
   const { title, description, donatedBy, donationId } = route.params;
-  const claimId = useContext(ClaimIdContext);
+  const { claimId } = useContext(ClaimsContext);
 
   // Modals
   const [isConfirming, setIsConfirming] = useState(false);
@@ -54,9 +54,13 @@ export const DonationDetails = ({
           <View>
             <Text style={styles.donationTitle}>{title}</Text>
             <Text style={styles.subCategory}>Description</Text>
-            <Text style={styles.body}>{description}</Text>
+            <Text style={styles.body}>
+              {description ? description : "No description"}
+            </Text>
             <Text style={styles.subCategory}>Donated by</Text>
-            <Text style={styles.body}>{donatedBy}</Text>
+            <Text style={styles.body}>
+              {donatedBy ? donatedBy : "No donor name"}
+            </Text>
           </View>
           <Button
             style={{ backgroundColor: theme.colors.text_link }}

@@ -1,9 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons";
-import {
-  ActivityIndicatorText, BottomSheet, QRVoucher
-} from "@give-a-meal/ui";
+import { ActivityIndicatorText, BottomSheet, QRVoucher } from "@give-a-meal/ui";
 import { textStyles, theme } from "@give-a-meal/ui/theme";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import {
   Animated,
   Dimensions,
@@ -14,10 +12,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 // import { DonationContext } from "../context/donationContext";
-import { ClaimIdContext, useClaimedDonations } from "@give-a-meal/sdk";
+import { ClaimsContext } from "@give-a-meal/sdk";
+import { useFocusEffect } from "@react-navigation/native";
+import { subscribeToDonations } from "@give-a-meal/sdk";
 
 const { width } = Dimensions.get("window");
 
@@ -27,12 +27,32 @@ const EMPTY_ITEM_SIZE = theme.spacing.md;
 
 export const Reserved = () => {
   const [meals, setMeals] = useState<any>([]);
-  const claimId = useContext(ClaimIdContext);
-  const { donationsLoading, claimedDonations } = useClaimedDonations(claimId);
+  const { claimId, claimedDonations, setClaimedDonationsDirectly } =
+    useContext(ClaimsContext);
+  const [loading, setLoading] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!claimId) return console.log("Unable to acces claim ID");
+
+      // If has loaded before, load wihout showing spinner
+      !claimedDonations && setLoading(true);
+      const unsubscribe = subscribeToDonations(claimId, (data) => {
+        setClaimedDonationsDirectly(data);
+        setLoading(false);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }, [])
+  );
 
   useEffect(() => {
     // Set data and add spacers for correct display of scrollview
-    setMeals([{ id: "001" }, ...claimedDonations, { id: "002" }]);
+    if (claimedDonations) {
+      setMeals([{ id: "001" }, ...claimedDonations, { id: "002" }]);
+    }
   }, [claimedDonations]);
 
   // Modals
@@ -43,7 +63,7 @@ export const Reserved = () => {
   const translateY = useRef(new Animated.Value(10)).current;
 
   useEffect(() => {
-    if (!donationsLoading) {
+    if (!loading) {
       Animated.spring(opacity, {
         toValue: 1,
         useNativeDriver: true,
@@ -53,7 +73,7 @@ export const Reserved = () => {
         useNativeDriver: true,
       }).start();
     }
-  }, [donationsLoading]);
+  }, [loading]);
 
   return (
     <SafeAreaView
@@ -70,8 +90,8 @@ export const Reserved = () => {
         title="Reserved meals"
       >
         <Text style={textStyles.body}>
-          Show this QR code at the restaurant displayed on the card to pick up
-          the meal for free.
+          Reserved meals appear here. Show them to the corresponding restaurent
+          to pick them up for free.
         </Text>
       </BottomSheet>
       <TouchableOpacity
@@ -88,12 +108,10 @@ export const Reserved = () => {
 
       <View style={styles.contentWrapper}>
         {/* Loading */}
-        {donationsLoading && (
-          <ActivityIndicatorText text="Fetching reserved meals" />
-        )}
+        {loading && <ActivityIndicatorText text="Fetching reserved meals" />}
 
         {/* Display reservations */}
-        {!donationsLoading && meals.length > 2 && (
+        {!loading && meals.length > 2 && (
           <FlatList
             data={meals}
             showsHorizontalScrollIndicator={false}
@@ -141,7 +159,7 @@ export const Reserved = () => {
         )}
 
         {/* No reservations */}
-        {!donationsLoading && meals.length === 2 && (
+        {!loading && meals.length === 2 && (
           <View style={styles.phContainer}>
             <Image
               style={styles.phImage}

@@ -47,29 +47,19 @@ export const Search = ({ navigation }: { navigation: any }) => {
   // Load data after switching screen
   useFocusEffect(
     useCallback(() => {
-      console.log("Location Status " + locationStatus);
-      if (locationStatus === "available") {
-        refreshData();
-        console.log("refreshing");
-        return undefined;
-      }
-    }, [locationStatus])
+      if (location) refreshData();
+      return undefined;
+    }, [location])
   );
 
-  // Load data after location is available
-  useEffect(() => {
-    if (location) {
-      refreshData();
-    }
-  }, [location]);
-
   const refreshData = async () => {
-    setIsLoading(true);
     if (!location) return;
+    setIsLoading(true);
     const { data, error } = await listNearbyBusinessesWithDonations({
       lat: location.coords.latitude,
       lon: location.coords.longitude,
-      radius: 10000,
+      // radius: 10000,
+      radius: 9999999,
     });
     setIsLoading(false);
     if (error) {
@@ -87,8 +77,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
         title="Restaurants nearby"
       >
         <Text style={textStyles.body}>
-          This page shows restaurants with available free meals near you.
-          Restaurants closest to you are at the top.
+          This page shows nearby restaurants with available free meals.
         </Text>
       </BottomSheet>
 
@@ -133,6 +122,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
                             name: business.business_name,
                             address: `${business.address}, ${business.city}`,
                             distance: prettifyMeters(business.distance),
+                            donations: business.donations,
                           })
                         }
                       >
@@ -142,9 +132,7 @@ export const Search = ({ navigation }: { navigation: any }) => {
                             business.donations.length > 1 ? "Meals" : "Meal"
                           }
                           title={business.business_name}
-                          info={
-                            prettifyMeters(business.distance)
-                          }
+                          info={prettifyMeters(business.distance)}
                         />
                         {businessesWithDonations.length !== i + 1 && (
                           <View style={{ height: theme.spacing.xs }} />
@@ -176,54 +164,65 @@ export const Search = ({ navigation }: { navigation: any }) => {
 
             {/* Declined location */}
             {locationStatus === "declined" && (
-              <View style={styles.messageContainer}>
-                <Text
-                  style={[
-                    textStyles.header_2,
-                    { marginBottom: theme.spacing.xs, maxWidth: 300 },
-                  ]}
-                >
-                  Please enable location access
-                </Text>
-                <Text
-                  style={[textStyles.body, { marginBottom: theme.spacing.sm }]}
-                >
-                  We only use your location to show you free meals nearby. We
-                  never store your location and we never show it to anyone else.
-                </Text>
-                <Button
-                  onPress={() => requestLocation(true)}
-                  style={{ backgroundColor: theme.colors.text_link }}
-                  label="Enable location access"
-                />
+              <View style={styles.messagesWrapper}>
+                <View style={styles.messageContainer}>
+                  <Text
+                    style={[
+                      textStyles.header_2,
+                      { marginBottom: theme.spacing.xs, maxWidth: 300 },
+                    ]}
+                  >
+                    Please enable location access
+                  </Text>
+                  <Text
+                    style={[
+                      textStyles.body,
+                      { marginBottom: theme.spacing.sm },
+                    ]}
+                  >
+                    We only use your location to show you free meals nearby. We
+                    never store your location and we never show it to anyone
+                    else.
+                  </Text>
+                  <Button
+                    onPress={() => requestLocation(true)}
+                    style={{ backgroundColor: theme.colors.text_link }}
+                    label="Enable location access"
+                  />
+                </View>
               </View>
             )}
 
             {/* No donations */}
             {!isLoading && businessesWithDonations.length === 0 && (
-              <View style={styles.messageContainer}>
-                <Text
-                  style={[
-                    textStyles.header_2,
-                    {
-                      marginBottom: theme.spacing.xs,
-                      maxWidth: 300,
-                    },
-                  ]}
-                >
-                  No nearby meals
-                </Text>
-                <Text
-                  style={[textStyles.body, { marginBottom: theme.spacing.sm }]}
-                >
-                  All nearby meals have been reserved. We are working hard to
-                  get more donations onto the platform.
-                </Text>
-                <Button
-                  type="secondary"
-                  label="Refresh"
-                  onPress={() => refreshData()}
-                />
+              <View style={styles.messagesWrapper}>
+                <View style={styles.messageContainer}>
+                  <Text
+                    style={[
+                      textStyles.header_2,
+                      {
+                        marginBottom: theme.spacing.xs,
+                        maxWidth: 300,
+                      },
+                    ]}
+                  >
+                    No nearby meals
+                  </Text>
+                  <Text
+                    style={[
+                      textStyles.body,
+                      { marginBottom: theme.spacing.sm },
+                    ]}
+                  >
+                    All nearby meals have been reserved. We are working hard to
+                    get more donations onto the platform.
+                  </Text>
+                  <Button
+                    type="secondary"
+                    label="Refresh"
+                    onPress={() => refreshData()}
+                  />
+                </View>
               </View>
             )}
           </View>
@@ -257,6 +256,14 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   // Content
+  messagesWrapper: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    flex: 1,
+    paddingHorizontal: theme.spacing.md,
+    justifyContent: "center",
+  },
   contentContainer: {
     flex: 1,
     justifyContent: "center",

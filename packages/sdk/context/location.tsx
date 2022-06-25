@@ -2,7 +2,7 @@ import { useAppIsActive } from "../hooks/useAppIsActive";
 import * as Location from "expo-location";
 import { Linking, Platform } from "react-native";
 import { LocationObject } from "expo-location";
-import React, { createContext, ReactNode, useState } from "react";
+import React, { createContext, ReactNode, useState, useEffect } from "react";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 
 // Context ---------  Context ---------  Context ---------  Context ---------
@@ -55,7 +55,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   // Handle location with states
   const getLocation = async () => {
     setLocationStatus("available");
-    let location = await Location.getCurrentPositionAsync({});
+    let location = await Location.getLastKnownPositionAsync({});
     setLocation(location);
   };
 
